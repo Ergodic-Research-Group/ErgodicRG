@@ -21,7 +21,7 @@
             --construction-amber: #d97706;
         }
         html { scroll-behavior: smooth; }
-        *{ margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-main);
@@ -92,6 +92,20 @@
         .footer-links a:hover { color: var(--text-main); border-bottom: 1px solid var(--text-main); }
         .reveal { opacity: 0; transform: translateY(15px); transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Fixed Canvas Containers */
+        .ghost-canvas-container, .shoreline-canvas-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 240px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .ghost-canvas-container { height: 100vh; z-index: 5; }
+        #ghostCanvas, #shorelineCanvas { display: block; width: 100%; height: 100%; }
+
         @media (max-width: 680px) {
             nav { flex-direction: column; gap: 20px; padding: 20px; }
             nav ul { gap: 20px; flex-wrap: wrap; justify-content: center; }
@@ -147,179 +161,101 @@
     </div>
 </footer>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const revealElements = document.querySelectorAll(".reveal");
-        revealElements.forEach(el => el.classList.add("active"));
-    });
-</script>
 <div class="ghost-canvas-container">
     <canvas id="ghostCanvas"></canvas>
 </div>
-
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // Reveal animation
+        document.querySelectorAll(".reveal").forEach(el => el.classList.add("active"));
+
+        // Canvas Setup
         const sCanvas = document.getElementById("shorelineCanvas");
         const sCtx = sCanvas.getContext("2d");
-
         const gCanvas = document.getElementById("ghostCanvas");
         const gCtx = gCanvas.getContext("2d");
 
         let viewWidth = window.innerWidth;
         const viewHeight = 240;
-        
+
         function resizeCanvases() {
             const dpr = window.devicePixelRatio || 1;
             viewWidth = window.innerWidth;
-            
             sCanvas.width = viewWidth * dpr;
             sCanvas.height = viewHeight * dpr;
             sCtx.scale(dpr, dpr);
-
             gCanvas.width = viewWidth * dpr;
-            gCanvas.height = document.documentElement.scrollHeight * dpr;
+            gCanvas.height = window.innerHeight * dpr;
             gCtx.scale(dpr, dpr);
         }
-        
-        window.addEventListener('load', resizeCanvases);
         window.addEventListener('resize', resizeCanvases);
         resizeCanvases();
 
-        const baselineY = 185;       
-        let lastScrollY = window.scrollY;
-        let isScrollingDown = false;
-        
-        let stopTime = 0;            
-        const DRY_DURATION = 3000;   
-        let scrollTimeout;
-
-        let ghostAlpha = 0;
-
-        // Tracks positions using the highly accurate Top boundary system
-        let scrollStartTopY = 0;
-        let scrollStartWaveOffset = 0;
-        let hasAnchor = false;
+        let waveOffsetFront = 0, waveOffsetBack = 0, lastScrollY = window.scrollY;
+        let isScrollingDown = false, stopTime = 0, ghostAlpha = 0, hasAnchor = false;
+        let scrollStartTopY = 0, scrollStartWaveOffset = 0;
 
         window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            
-            if (currentScrollY > lastScrollY) {
+            if (window.scrollY > lastScrollY) {
                 if (!isScrollingDown) {
                     isScrollingDown = true;
                     stopTime = 0;
                     ghostAlpha = 0.18;
-                    
-                    // Correctly anchor the top of the viewport when scroll starts
                     if (!hasAnchor) {
-                        scrollStartTopY = lastScrollY;
+                        scrollStartTopY = window.scrollY;
                         scrollStartWaveOffset = waveOffsetFront;
                         hasAnchor = true;
                     }
                 }
-
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    if (isScrollingDown) {
-                        isScrollingDown = false;
-                        stopTime = performance.now(); 
-                    }
-                }, 120); // Marginally higher window to ensure touchpads process completely
+                clearTimeout(window.scrollTimeout);
+                window.scrollTimeout = setTimeout(() => {
+                    isScrollingDown = false;
+                    stopTime = performance.now();
+                }, 150);
             }
-            lastScrollY = currentScrollY;
+            lastScrollY = window.scrollY;
         });
 
-        let waveOffsetFront = 0;
-        let waveOffsetBack = 0;
-
-        function renderLoop(timestamp) {
+        function renderLoop(t) {
             sCtx.clearRect(0, 0, viewWidth, viewHeight);
-
-            waveOffsetFront += 0.018;
-            waveOffsetBack += 0.009;
+            waveOffsetFront += 0.02;
+            waveOffsetBack += 0.01;
 
             if (!isScrollingDown && stopTime > 0) {
-                const elapsed = timestamp - stopTime;
-                if (elapsed < DRY_DURATION) {
-                    const progress = elapsed / DRY_DURATION;
-                    ghostAlpha = 0.18 * (1 - progress);
-                } else {
-                    ghostAlpha = 0;
-                    stopTime = 0;
-                    hasAnchor = false; 
-                }
+                const elapsed = t - stopTime;
+                ghostAlpha = elapsed < 2000 ? 0.18 * (1 - elapsed / 2000) : 0;
+                if (ghostAlpha <= 0) hasAnchor = false;
             }
 
-            // Foreground runtime wave coordinates
-            let currentWaveY = [];
-            for (let x = 0; x < viewWidth; x++) {
-                const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
-                currentWaveY[x] = baselineY + waveShape;
-            }
-
-            // --- RECTIFIED TOP-ANCHORED UNIFIED GEOMETRY (NO BANDING) ---
+            // Draw Ghost Body
             if (hasAnchor && ghostAlpha > 0) {
-                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
-
-                gCtx.save();
-                gCtx.filter = 'blur(6px)';
-                gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
+                gCtx.clearRect(0, 0, viewWidth, window.innerHeight);
+                gCtx.fillStyle = `rgba(58, 131, 204, ${ghostAlpha})`;
                 gCtx.beginPath();
-                
-                // 1. Plot the initial wave shape where the interaction started
-                // Offset calculation is based purely on the document scroll start position
-                const startPlacementY = scrollStartTopY + window.innerHeight - viewHeight;
-                const initialY0 = startPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
-                gCtx.moveTo(0, initialY0);
-                
-                for (let x = 1; x < viewWidth; x++) {
-                    const initialY = startPlacementY + baselineY + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12;
-                    gCtx.lineTo(x, initialY);
+                gCtx.moveTo(0, window.innerHeight);
+                for (let x = 0; x <= viewWidth; x++) {
+                    gCtx.lineTo(x, window.innerHeight - 60 + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12);
                 }
-
-                // 2. Seamlessly close the dynamic polygon using the live front wave coordinates
-                const livePlacementY = window.scrollY + window.innerHeight - viewHeight;
-                for (let x = viewWidth - 1; x >= 0; x--) {
-                    const liveY = livePlacementY + currentWaveY[x];
-                    gCtx.lineTo(x, liveY);
-                }
-
-                gCtx.closePath();
-                gCtx.fill(); 
-                gCtx.restore();
-            } else if (ghostAlpha === 0 && !isScrollingDown) {
-                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
+                gCtx.lineTo(viewWidth, window.innerHeight);
+                gCtx.fill();
             }
 
-            // --- BASEWATER BACKGROUND ACCENT ---
+            // Draw Shoreline
             sCtx.beginPath();
             sCtx.moveTo(0, viewHeight);
-            for (let x = 0; x < viewWidth; x++) {
-                const y = baselineY - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14;
-                sCtx.lineTo(x, y);
+            for (let x = 0; x <= viewWidth; x++) {
+                sCtx.lineTo(x, 185 + Math.sin(x * 0.006 + waveOffsetFront) * 12);
             }
             sCtx.lineTo(viewWidth, viewHeight);
-            sCtx.closePath();
-            sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
-            sCtx.fill();
-
-            // --- FOREGROUND SURFACE WATER ---
-            sCtx.beginPath();
-            sCtx.moveTo(0, viewHeight);
-            for (let x = 0; x < viewWidth; x++) {
-                sCtx.lineTo(x, currentWaveY[x]);
-            }
-            sCtx.lineTo(viewWidth, viewHeight);
-            sCtx.closePath();
-            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
+            sCtx.fillStyle = "rgba(58, 131, 204, 0.3)";
             sCtx.fill();
 
             requestAnimationFrame(renderLoop);
         }
-
         requestAnimationFrame(renderLoop);
     });
 </script>
