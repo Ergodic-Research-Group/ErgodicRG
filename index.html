@@ -407,15 +407,25 @@
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   
+        const DRY_DURATION = 4000;   // 4 Seconds dry timeline
         let scrollTimeout;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
             if (currentScrollY > lastScrollY) {
+                const delta = currentScrollY - lastScrollY;
                 isScrollingDown = true;
                 stopTime = 0; 
+
+                // Shift the old path UPWARD by the amount scrolled to anchor it to Point A on the text layout
+                if (hasPathSnapshot) {
+                    for (let x = 0; x < canvasWidth; x++) {
+                        if (wetPathY[x] !== null) {
+                            wetPathY[x] -= delta;
+                        }
+                    }
+                }
 
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
@@ -467,36 +477,29 @@
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // Path Snapshot Control: Initializes data strictly from the live wave form
+            // Capture initial baseline wave path snapshot instantly on scroll down start
             if (isScrollingDown) {
                 if (!hasPathSnapshot) {
                     for (let x = 0; x < canvasWidth; x++) {
                         wetPathY[x] = currentWaveY[x];
                     }
                     hasPathSnapshot = true;
-                } else {
-                    for (let x = 0; x < canvasWidth; x++) {
-                        // Capture and preserve the highest memory trail point (lower Y = higher on screen)
-                        if (currentWaveY[x] < wetPathY[x]) {
-                            wetPathY[x] = currentWaveY[x];
-                        }
-                    }
                 }
             }
 
-            // --- LAYER 1: DYNAMIC ORGANIC WAVE SNAPSHOT TRAIL ---
+            // --- LAYER 1: FIXED TEXT-ANCHORED DAMP MASK LAYER ---
             if (currentAlpha > 0.001 && hasPathSnapshot) {
                 ctx.save();
                 ctx.filter = 'blur(6px)'; 
                 ctx.beginPath();
                 
-                // Track forward along the organic snapshot high-water memory path
+                // Track the trail line shape left behind at Point A
                 ctx.moveTo(0, wetPathY[0]);
                 for (let x = 1; x < canvasWidth; x++) {
                     ctx.lineTo(x, wetPathY[x]);
                 }
 
-                // Trace backward fluidly matching the live moving wave
+                // Close down seamlessly right against Point B (moving water wave form)
                 for (let x = canvasWidth - 1; x >= 0; x--) {
                     ctx.lineTo(x, currentWaveY[x]);
                 }
