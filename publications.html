@@ -311,7 +311,6 @@
             </div>
         </a>
         <ul>
-            <!-- Dynamic Active States configuration (Update .active class as required per duplicate) -->
             <li><a href="index.html">Home</a></li>
             <li><a href="research.html" class="active">Research</a></li>
             <li><a href="software.html">Software</a></li>
@@ -362,12 +361,15 @@
         const revealElements = document.querySelectorAll(".reveal");
         const revealOnScroll = () => {
             revealElements.forEach(el => {
-                if (el.getBoundingClientRect().top < window.innerHeight - 20) {
+                const elementTop = el.getBoundingClientRect().top;
+                // Triggers immediately if the element is visible on load
+                if (elementTop < window.innerHeight - 20) {
                     el.classList.add("active");
                 }
             });
         };
         window.addEventListener("scroll", revealOnScroll);
+        // Force evaluation right away on initial load execution
         revealOnScroll();
     });
 </script>
