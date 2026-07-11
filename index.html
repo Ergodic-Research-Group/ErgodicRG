@@ -257,9 +257,7 @@
             color: var(--text-light);
         }
 
-        /* --- THE TWO DISTINCT CANVAS SYSTEMS --- */
-        
-        /* 1. Ghost Trail Canvas: Sits fully inside the absolute body document flow */
+        /* --- THE TWO CANVAS CONTAINERS --- */
         .ghost-canvas-container {
             position: absolute;
             top: 0;
@@ -273,9 +271,9 @@
             width: 100%;
             height: 100%;
             display: block;
+            transition: opacity 0.1s linear;
         }
 
-        /* 2. Active Shoreline Canvas: Stays fixed to the viewport window layer */
         .shoreline-canvas-container {
             position: fixed;
             bottom: 0;
@@ -335,7 +333,7 @@
             </div>
             <div class="side-block">
                 <h3>Status</h3>
-                <p>Independent<br>Est. 2025 &bull; Global Distributed Group</p>
+                <p>Independent <br>Est. 2025 &bull; Global Distributed Group</p>
             </div>
         </aside>
     </header>
@@ -377,12 +375,10 @@
     </div>
 </footer>
 
-<!-- Background absolute layer holding stamped footprints -->
 <div class="ghost-canvas-container">
     <canvas id="ghostCanvas"></canvas>
 </div>
 
-<!-- Foreground viewport layer holding running blue water -->
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
@@ -402,12 +398,10 @@
             const dpr = window.devicePixelRatio || 1;
             viewWidth = window.innerWidth;
             
-            // Layout Viewport Setup
             sCanvas.width = viewWidth * dpr;
             sCanvas.height = viewHeight * dpr;
             sCtx.scale(dpr, dpr);
 
-            // Infinite Document Canvas Setup
             gCanvas.width = viewWidth * dpr;
             gCanvas.height = document.documentElement.scrollHeight * dpr;
             gCtx.scale(dpr, dpr);
@@ -422,27 +416,40 @@
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   // Exactly 4 seconds uniform fade window
+        const DRY_DURATION = 4000;   
         let scrollTimeout;
 
-        // Tracks the global alpha of the static ghost trail layer
         let ghostAlpha = 0;
+
+        // Anchor points locked when a scroll interaction starts
+        let scrollStartScrollY = 0;
+        let scrollStartWaveOffset = 0;
+        let hasAnchor = false;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
             if (currentScrollY > lastScrollY) {
-                isScrollingDown = true;
-                stopTime = 0;
-                ghostAlpha = 0.18; // Instantly illuminate ghost footprints
+                if (!isScrollingDown) {
+                    isScrollingDown = true;
+                    stopTime = 0;
+                    ghostAlpha = 0.18;
+                    
+                    // Freeze Point A data context at the precise moment scroll initiates
+                    if (!hasAnchor) {
+                        scrollStartScrollY = lastScrollY;
+                        scrollStartWaveOffset = waveOffsetFront;
+                        hasAnchor = true;
+                    }
+                }
 
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     if (isScrollingDown) {
                         isScrollingDown = false;
-                        stopTime = performance.now(); // Start the 4 second timer
+                        stopTime = performance.now(); 
                     }
-                }, 80);
+                }, 100);
             }
             lastScrollY = currentScrollY;
         });
@@ -451,13 +458,11 @@
         let waveOffsetBack = 0;
 
         function renderLoop(timestamp) {
-            // 1. Clear Active Water Layer Viewport
             sCtx.clearRect(0, 0, viewWidth, viewHeight);
 
             waveOffsetFront += 0.018;
             waveOffsetBack += 0.009;
 
-            // Handle the uniform 4-second dry down window after scrolling halts
             if (!isScrollingDown && stopTime > 0) {
                 const elapsed = timestamp - stopTime;
                 if (elapsed < DRY_DURATION) {
@@ -466,6 +471,7 @@
                 } else {
                     ghostAlpha = 0;
                     stopTime = 0;
+                    hasAnchor = false; // Reset anchor layout tracking flags
                 }
             }
 
@@ -476,40 +482,38 @@
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // --- LAYER 1: STAMP GHOST FOOTPRINTS DIRECTLY ONTO DOCUMENT SPACE ---
-            // If user is actively scrolling down, draw the trail directly onto the absolute document canvas
-            if (isScrollingDown) {
-                const currentScroll = window.scrollY;
-                // Find where the bottom of the screen currently intersects the master document height
-                const viewportBottomY = currentScroll + window.innerHeight;
-                const canvasPlacementY = viewportBottomY - viewHeight;
+            // --- FIXED UNIFIED SOLID POLYGON FOR GHOST TRAIL (NO BANDING) ---
+            if (hasAnchor && ghostAlpha > 0) {
+                // Clear the layout completely and redraw fresh on every single frame
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
 
                 gCtx.save();
-                gCtx.filter = 'blur(4px)';
-                gCtx.fillStyle = "rgba(0, 0, 0, 0.04)"; // Draw with light increments to make a smooth path
+                gCtx.filter = 'blur(5px)';
+                gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
                 gCtx.beginPath();
                 
-                // Draw path relative to the document layer coordinates
-                gCtx.moveTo(0, canvasPlacementY + currentWaveY[0]);
+                // 1. Draw top boundary line: Shape of the wave locked at Point A
+                const topCanvasPlacementY = scrollStartScrollY + window.innerHeight - viewHeight;
+                const topY0 = topCanvasPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
+                gCtx.moveTo(0, topY0);
+                
                 for (let x = 1; x < viewWidth; x++) {
-                    gCtx.lineTo(x, canvasPlacementY + currentWaveY[x]);
+                    const topY = topCanvasPlacementY + baselineY + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12;
+                    gCtx.lineTo(x, topY);
                 }
-                gCtx.lineTo(viewWidth, canvasPlacementY + viewHeight);
-                gCtx.lineTo(0, canvasPlacementY + viewHeight);
-                gCtx.closePath();
-                gCtx.fill();
-                gCtx.restore();
-            }
 
-            // Render the absolute document ghost layer opacity dynamically
-            if (ghostAlpha > 0) {
-                gCanvas.style.opacity = (ghostAlpha / 0.18).toFixed(3);
-            } else {
-                gCanvas.style.opacity = "0";
-                // When fully dried out, clear the layout history so it's fresh for next scroll sequence
-                if (stopTime === 0 && !isScrollingDown) {
-                    gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+                // 2. Continuous connect to bottom boundary line: Shape of active live wavefront
+                const bottomCanvasPlacementY = window.scrollY + window.innerHeight - viewHeight;
+                for (let x = viewWidth - 1; x >= 0; x--) {
+                    const bottomY = bottomCanvasPlacementY + currentWaveY[x];
+                    gCtx.lineTo(x, bottomY);
                 }
+
+                gCtx.closePath();
+                gCtx.fill(); // Filled exactly once as a single polygon flat canvas draw
+                gCtx.restore();
+            } else if (ghostAlpha === 0 && !isScrollingDown) {
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
             }
 
             // --- LAYER 2: MOVING BASEWATER BACKGROUND ACCENT ---
