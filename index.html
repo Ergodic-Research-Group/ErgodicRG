@@ -382,35 +382,39 @@
         let canvasWidth = window.innerWidth;
         const canvasHeight = 240;
         
+        let wetPathY = [];
+        let hasPathSnapshot = false;
+
+        function resetWetPath() {
+            wetPathY = new Array(Math.ceil(window.innerWidth)).fill(null);
+            hasPathSnapshot = false;
+        }
+
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
             canvasWidth = window.innerWidth;
             canvas.width = canvasWidth * dpr;
             canvas.height = canvasHeight * dpr;
             ctx.scale(dpr, dpr);
+            resetWetPath();
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const baselineY = 185;       // Waterline rest level
+        const baselineY = 185;       
         
         let lastScrollY = window.scrollY;
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   // Exactly 4 seconds
+        const DRY_DURATION = 4000;   
         let scrollTimeout;
-        let currentTargetAlpha = 0;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
-            // GATE: Only trigger on down scrolls
             if (currentScrollY > lastScrollY) {
                 isScrollingDown = true;
-                
-                // Immediately wake up the damp overlay transparency at its target depth tone
-                currentTargetAlpha = 0.16;
                 stopTime = 0; 
 
                 clearTimeout(scrollTimeout);
@@ -443,35 +447,60 @@
             let currentAlpha = 0;
 
             if (isScrollingDown) {
-                currentAlpha = currentTargetAlpha;
+                currentAlpha = 0.16;
             } else if (stopTime > 0) {
                 const elapsed = timestamp - stopTime;
                 if (elapsed < DRY_DURATION) {
                     const progress = elapsed / DRY_DURATION;
-                    // Strict linear regression fading away over exactly 4000ms
                     currentAlpha = 0.16 * (1 - progress);
                 } else {
                     currentAlpha = 0;
                     stopTime = 0;
+                    resetWetPath();
                 }
             }
 
-            // --- LAYER 1: STRICT 4-SECOND PINS-DOWN DAMP CREAM BACKGROUND OVERLAY ---
-            if (currentAlpha > 0.001) {
+            // Calculate active frontend wave coordinates
+            let currentWaveY = [];
+            for (let x = 0; x < canvasWidth; x++) {
+                const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
+                currentWaveY[x] = baselineY + waveShape;
+            }
+
+            // Path Snapshot Control: Initializes data strictly from the live wave form
+            if (isScrollingDown) {
+                if (!hasPathSnapshot) {
+                    for (let x = 0; x < canvasWidth; x++) {
+                        wetPathY[x] = currentWaveY[x];
+                    }
+                    hasPathSnapshot = true;
+                } else {
+                    for (let x = 0; x < canvasWidth; x++) {
+                        // Capture and preserve the highest memory trail point (lower Y = higher on screen)
+                        if (currentWaveY[x] < wetPathY[x]) {
+                            wetPathY[x] = currentWaveY[x];
+                        }
+                    }
+                }
+            }
+
+            // --- LAYER 1: DYNAMIC ORGANIC WAVE SNAPSHOT TRAIL ---
+            if (currentAlpha > 0.001 && hasPathSnapshot) {
                 ctx.save();
                 ctx.filter = 'blur(6px)'; 
                 ctx.beginPath();
                 
-                // Start drawing from the absolute top boundary of the canvas element
-                ctx.moveTo(0, 0);
-                ctx.lineTo(canvasWidth, 0);
-
-                // Run down to meet the changing organic crest paths perfectly
-                for (let x = canvasWidth; x >= 0; x--) {
-                    const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
-                    const y = baselineY + waveShape;
-                    ctx.lineTo(x, y);
+                // Track forward along the organic snapshot high-water memory path
+                ctx.moveTo(0, wetPathY[0]);
+                for (let x = 1; x < canvasWidth; x++) {
+                    ctx.lineTo(x, wetPathY[x]);
                 }
+
+                // Trace backward fluidly matching the live moving wave
+                for (let x = canvasWidth - 1; x >= 0; x--) {
+                    ctx.lineTo(x, currentWaveY[x]);
+                }
+
                 ctx.closePath();
                 ctx.fillStyle = `rgba(0, 0, 0, ${currentAlpha})`; 
                 ctx.fill();
@@ -494,8 +523,7 @@
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
-                const y = baselineY + Math.sin(x * 0.006 + waveOffsetFront) * 12;
-                ctx.lineTo(x, y);
+                ctx.lineTo(x, currentWaveY[x]);
             }
             ctx.lineTo(canvasWidth, canvasHeight);
             ctx.closePath();
