@@ -221,13 +221,53 @@
             box-shadow: 0 12px 30px rgba(27, 25, 22, 0.04);
         }
 
+        /* --- PREMIUM ACADEMIC FOOTER RESTYLING --- */
+        footer {
+            margin-top: 140px;
+            border-top: 1px solid var(--border-color);
+            padding: 50px 0;
+            background-color: transparent;
+        }
+
+        .footer-inner {
+            max-width: 1150px;
+            margin: auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 0.88rem;
+        }
+
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-left strong {
+            color: var(--text-main);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+        
+        .footer-left span {
+            color: var(--text-muted);
+        }
+
+        .footer-right {
+            text-align: right;
+            color: var(--text-light);
+        }
+
         /* --- SHORELINE CANVAS WORKSPACE CONTAINER --- */
         .shoreline-canvas-container {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 180px; /* Spacious clear canvas viewport window */
+            height: 220px; 
             z-index: 10;
             pointer-events: none;
         }
@@ -241,6 +281,17 @@
         @media (max-width: 960px) {
             .hero { grid-template-columns: 1fr; gap: 50px; }
             .side { border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 40px; }
+        }
+
+        @media (max-width: 640px) {
+            .footer-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 24px;
+            }
+            .footer-right {
+                text-align: left;
+            }
         }
     </style>
 </head>
@@ -309,8 +360,13 @@
 
 <footer>
     <div class="footer-inner">
-        <div><strong>Ergodic Research Group</strong><br>Independent Research &bull; 2025</div>
-        <div>&copy; 2026 ERG. All rights reserved.</div>
+        <div class="footer-left">
+            <strong>Ergodic Research Group</strong>
+            <span>Independent Research &bull; 2025</span>
+        </div>
+        <div class="footer-right">
+            &copy; 2026 ERG. All rights reserved.
+        </div>
     </div>
 </footer>
 
@@ -324,7 +380,7 @@
         const ctx = canvas.getContext("2d");
 
         let canvasWidth = window.innerWidth;
-        const canvasHeight = 180;
+        const canvasHeight = 220;
         
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
@@ -336,74 +392,110 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const baselineY = 135;       // Water line rest position at the bottom of the viewport
-        let currentWetStretch = 0;   // Realized stretch amplitude
-        let targetWetStretch = 0;    // Target drag height based on scroll speed
-        let wetAlpha = 0;           // Opacity multiplier for the damp footprint
+        const baselineY = 175;       // Rest position for the baseline water surface
+        let wetStretch = 0;          // Dynamic Y axis amplitude stretch tracker
         
         let lastScrollY = window.scrollY;
-        let scrollVelocity = 0;
-        let scrollTimeout = null;
-        let isScrolling = false;
+        let isScrollingDown = false;
+        
+        // Accurate Time Multiplier States
+        let stopTime = 0;            // Epoch tracking marker for the 4-second decay window
+        const DRY_DURATION = 4000;   // Exactly 4000 milliseconds (4 seconds)
+        let maxWetStretchAtStop = 0; 
 
-        // Active velocity parser fixes the canvas scroll decoupled sync issue
         window.addEventListener('scroll', () => {
-            isScrolling = true;
             const currentScrollY = window.scrollY;
-            const delta = Math.abs(currentScrollY - lastScrollY);
-            lastScrollY = currentScrollY;
-
-            // Instantly pull up the overlay tracking matrix proportionally to the scroll velocity
-            scrollVelocity = Math.min(65, scrollVelocity + delta * 0.45);
-            targetWetStretch = scrollVelocity;
             
-            // Lock active damp footprint alpha density on motion
-            wetAlpha = Math.min(0.065, wetAlpha + 0.02);
+            // DIRECTIONAL GATE: Exclusively fires on Scroll-Down events
+            if (currentScrollY > lastScrollY) {
+                isScrollingDown = true;
+                const delta = currentScrollY - lastScrollY;
+                
+                // NO DRAG TIMING LAG: Instantly lock footprint directly to frame coordinates
+                wetStretch = Math.min(105, wetStretch + delta * 1.1);
+                
+                // Keep setting stopTime to future while moving so decay calculations don't trigger yet
+                stopTime = 0; 
+            }
+            
+            lastScrollY = currentScrollY;
+        });
 
+        // Catch the exact frame scroll momentum settles to start the 4s stopwatch
+        window.addEventListener('scrollend', () => {
+            if (isScrollingDown) {
+                isScrollingDown = false;
+                stopTime = performance.now();
+                maxWetStretchAtStop = wetStretch;
+            }
+        });
+
+        // Fail-safe timeout fallback handler for older browsers lacking 'scrollend' event native support
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            if (!isScrollingDown) return;
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
-                isScrolling = false;
-                scrollVelocity = 0;
+                if (isScrollingDown) {
+                    isScrollingDown = false;
+                    stopTime = performance.now();
+                    maxWetStretchAtStop = wetStretch;
+                }
             }, 60);
         });
 
         let waveOffsetFront = 0;
         let waveOffsetBack = 0;
 
-        function renderShoreline() {
+        function renderShoreline(timestamp) {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
             waveOffsetFront += 0.022;
             waveOffsetBack += 0.011;
 
-            // EVAPORATION TIMELINE HANDLING: Programmed for a precise 4-second exponential fallback curve
-            if (!isScrolling) {
-                targetWetStretch += (0 - targetWetStretch) * 0.015; // Elastic contraction back to water line
-                wetAlpha += (0 - wetAlpha) * 0.012;               // Alpha visual fade away matrix loop (~4 seconds)
-            }
-            currentWetStretch += (targetWetStretch - currentWetStretch) * 0.08;
+            let currentAlpha = 0;
 
-            // --- LAYER 1: STICKY DAMP RESIDUE OVERLAY (PERFECT MATCHING SHAPE) ---
-            if (wetAlpha > 0.001) {
+            if (isScrollingDown) {
+                // Instantly present while moving downward
+                currentAlpha = 0.15;
+            } else if (stopTime > 0) {
+                // STRICTOR 4-SECOND TIMED MATRIX
+                const elapsed = timestamp - stopTime;
+                if (elapsed < DRY_DURATION) {
+                    // Linear progress slider from 1.0 down to 0 over exactly 4000ms
+                    const progress = elapsed / DRY_DURATION; 
+                    currentAlpha = 0.15 * (1 - progress);
+                    wetStretch = maxWetStretchAtStop * (1 - progress);
+                } else {
+                    // Reset to dry once clock hits exactly 4 seconds
+                    currentAlpha = 0;
+                    wetStretch = 0;
+                    stopTime = 0;
+                }
+            } else {
+                wetStretch = 0;
+            }
+
+            // --- LAYER 1: STRICT 4-SECOND DAMP PROFILE OVERLAY ---
+            if (currentAlpha > 0.001) {
                 ctx.save();
-                ctx.filter = 'blur(6px)'; // Soft blending feather blur edge directly into paper color
+                ctx.filter = 'blur(6px)'; 
                 ctx.beginPath();
                 ctx.moveTo(0, canvasHeight);
 
                 for (let x = 0; x < canvasWidth; x++) {
-                    // Re-evaluates exact primary wave formula, shifted upward matching scroll drag displacement
                     const waveShape = Math.sin(x * 0.007 + waveOffsetFront) * 4;
-                    const y = baselineY + waveShape - currentWetStretch;
+                    const y = baselineY + waveShape - wetStretch;
                     ctx.lineTo(x, y);
                 }
                 ctx.lineTo(canvasWidth, canvasHeight);
                 ctx.closePath();
-                ctx.fillStyle = `rgba(0, 0, 0, ${wetAlpha})`; 
+                ctx.fillStyle = `rgba(0, 0, 0, ${currentAlpha})`; 
                 ctx.fill();
                 ctx.restore();
             }
 
-            // --- LAYER 2: DEEP OCEAN ACCENT LAYER ---
+            // --- LAYER 2: BACK OCEAN ACCENT WAVE ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
@@ -415,7 +507,7 @@
             ctx.fillStyle = "rgba(41, 102, 163, 0.15)"; 
             ctx.fill();
 
-            // --- LAYER 3: INCOMING WATER WATER SURFACE (PRIMARY FOREGROUND SURF) ---
+            // --- LAYER 3: FOREGROUND OCEAN SURFACE WAVE ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
@@ -430,7 +522,7 @@
             requestAnimationFrame(renderShoreline);
         }
 
-        renderShoreline();
+        requestAnimationFrame(renderShoreline);
     });
 </script>
 </body>
