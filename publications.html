@@ -21,17 +21,25 @@
             --construction-amber: #d97706;
         }
         html { scroll-behavior: smooth; }
-        *{ margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-main);
             background-color: var(--bg-color);
             line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
+            position: relative;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
+
+        /* --- STABLE CANVAS LAYERS --- */
+        .ghost-canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+        #ghostCanvas { width: 100%; height: 100%; display: block; }
+        .shoreline-canvas-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 240px; z-index: 10; pointer-events: none; }
+        #shorelineCanvas { width: 100%; height: 100%; display: block; }
+
         body::before {
             content: "";
             position: fixed;
@@ -41,69 +49,35 @@
             z-index: 9999;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
-        header.site-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background-color: rgba(246, 242, 233, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-        nav {
-            max-width: 1150px;
-            margin: auto;
-            padding: 24px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        .brand-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        
+        header.site-header { position: sticky; top: 0; z-index: 100; background-color: rgba(246, 242, 233, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
+        nav { max-width: 1150px; margin: auto; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; z-index: 11; }
+        .brand-container { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-main); }
         .brand-logo { height: 28px; width: auto; border-radius: 4px; mix-blend-mode: multiply; }
         .brand { font-weight: 600; letter-spacing: -0.02em; font-size: 1.05rem; }
         .brand-sub { font-weight: 400; color: var(--text-light); margin-left: 6px; }
         nav ul { display: flex; list-style: none; gap: 32px; font-size: 0.92rem; font-weight: 500; }
-        nav ul li a { color: var(--text-muted); position: relative; padding: 4px 0; text-decoration: none; }
-        nav ul li a:hover, nav ul li a:focus { color: var(--accent-hover); }
+        nav ul li a { color: var(--text-muted); text-decoration: none; }
         nav ul li a.active { color: var(--text-main); }
-        nav ul li a::after {
-            content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px;
-            bottom: 0; left: 0; background-color: var(--text-main); transform-origin: bottom right;
-            transition: transform 0.25s ease-out;
-        }
-        nav ul li a:hover::after { transform: scaleX(1); transform-origin: bottom left; }
-        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 30px; }
+        
+        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 30px; position: relative; z-index: 5; }
         .error-container { max-width: 540px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .construction-vector {
-            width: 84px; height: 84px; margin-bottom: 30px; color: var(--construction-amber);
-            background-color: rgba(217, 119, 6, 0.06); padding: 16px; border-radius: 20px;
-            border: 1px dashed rgba(217, 119, 6, 0.2);
-        }
+        .construction-vector { width: 84px; height: 84px; margin-bottom: 30px; color: var(--construction-amber); background-color: rgba(217, 119, 6, 0.06); padding: 16px; border-radius: 20px; border: 1px dashed rgba(217, 119, 6, 0.2); }
         .error-tag { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--construction-amber); font-weight: 700; margin-bottom: 12px; }
-        h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 2.2rem; font-weight: 400; line-height: 1.3; letter-spacing: -0.01em; margin-bottom: 16px; color: var(--text-main); }
-        .error-description { color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; margin-bottom: 35px; }
-        .return-btn { font-size: 0.92rem; font-weight: 500; color: var(--text-main); border-bottom: 1px solid var(--text-main); padding-bottom: 2px; text-decoration: none; transition: opacity 0.2s ease; }
-        .return-btn:hover { opacity: 0.6; }
-        footer { border-top: 1px solid var(--border-color); padding: 60px 30px; background-color: rgba(0, 0, 0, 0.01); width: 100%; }
-        .footer-inner { max-width: 1090px; margin: auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px; color: var(--text-light); font-size: 0.9rem; }
-        .footer-brand strong { color: var(--text-main); font-weight: 600; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; border-bottom: 1px solid transparent; }
-        .footer-links a:hover { color: var(--text-main); border-bottom: 1px solid var(--text-main); }
-        .reveal { opacity: 0; transform: translateY(15px); transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 2.2rem; font-weight: 400; margin-bottom: 16px; }
+        .error-description { color: var(--text-muted); margin-bottom: 35px; }
+        .return-btn { font-size: 0.92rem; color: var(--text-main); border-bottom: 1px solid var(--text-main); text-decoration: none; }
+        
+        footer { border-top: 1px solid var(--border-color); padding: 60px 30px; background-color: rgba(0, 0, 0, 0.01); width: 100%; position: relative; z-index: 11; }
+        .footer-inner { max-width: 1090px; margin: auto; display: flex; justify-content: space-between; color: var(--text-light); font-size: 0.9rem; }
+        .reveal { opacity: 0; transform: translateY(15px); transition: opacity 0.6s, transform 0.6s; }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        @media (max-width: 680px) {
-            nav { flex-direction: column; gap: 20px; padding: 20px; }
-            nav ul { gap: 20px; flex-wrap: wrap; justify-content: center; }
-            h1 { font-size: 1.8rem; }
-            .footer-inner { flex-direction: column; gap: 20px; }
-        }
     </style>
 </head>
 <body>
 
 <header class="site-header">
-    <nav aria-label="Main Navigation">
+    <nav>
         <a href="index.html" class="brand-container">
             <img src="logo.jpg" alt="ERG Logo" class="brand-logo">
             <div class="brand">Ergodic Research Group<span class="brand-sub">ERG</span></div>
@@ -122,209 +96,77 @@
     <div class="error-container reveal">
         <svg class="construction-vector" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18" />
-            <path d="M10 22v-4a2 2 0 0 1 4 0v4" />
-            <path d="m3 7 18 3" />
-            <path d="m3 12 18 3" />
+            <path d="M10 22v-4a2 2 0 0 1 4 0v4" /><path d="m3 7 18 3" /><path d="m3 12 18 3" />
         </svg>
         <div class="error-tag">Status 403 &bull; Index Update</div>
         <h1>Publications index under review.</h1>
-        <p class="error-description">
-            Our manuscript indexes, preprints, and academic journal literature citations are currently undergoing volume re-cataloging. 
-        </p>
+        <p class="error-description">Our manuscript indexes, preprints, and academic journal literature citations are currently undergoing volume re-cataloging.</p>
         <a href="index.html" class="return-btn">Return to Primary Index</a>
     </div>
 </main>
 
 <footer>
     <div class="footer-inner">
-        <div class="footer-brand">
-            <strong>Ergodic Research Group</strong><br> Independent Research Initiative &bull; 2026
-        </div>
-        <div class="footer-links">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
-        </div>
+        <div class="footer-brand"><strong>Ergodic Research Group</strong> &bull; 2026</div>
         <div> &copy; 2026 ERG. All rights reserved. </div>
     </div>
 </footer>
 
-<div class="ghost-canvas-container">
-    <canvas id="ghostCanvas"></canvas>
-</div>
+<div class="ghost-canvas-container"><canvas id="ghostCanvas"></canvas></div>
+<div class="shoreline-canvas-container"><canvas id="shorelineCanvas"></canvas></div>
 
-<div class="shoreline-canvas-container">
-    <canvas id="shorelineCanvas"></canvas>
-</div>
-
-<!-- Reveal Animation Handling -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const revealElements = document.querySelectorAll(".reveal");
-        revealElements.forEach(el => el.classList.add("active"));
-    });
-</script>
+        // Reveal
+        document.querySelector(".reveal").classList.add("active");
 
-<!-- Shoreline & Ghost Wave Animation Logic -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const sCanvas = document.getElementById("shorelineCanvas");
-        const sCtx = sCanvas ? sCanvas.getContext("2d") : null;
+        // Wave Logic
+        const sCanvas = document.getElementById("shorelineCanvas"), gCanvas = document.getElementById("ghostCanvas");
+        const sCtx = sCanvas.getContext("2d"), gCtx = gCanvas.getContext("2d");
+        let viewWidth = window.innerWidth, viewHeight = 240, waveOffsetFront = 0, waveOffsetBack = 0, lastScrollY = window.scrollY, isScrollingDown = false, stopTime = 0, scrollTimeout, hasAnchor = false, scrollStartTopY = 0, scrollStartWaveOffset = 0, ghostAlpha = 0;
 
-        const gCanvas = document.getElementById("ghostCanvas");
-        const gCtx = gCanvas ? gCanvas.getContext("2d") : null;
-
-        if (!sCanvas || !gCanvas) return;
-
-        let viewWidth = window.innerWidth;
-        const viewHeight = 240;
-        
         function resizeCanvases() {
             const dpr = window.devicePixelRatio || 1;
             viewWidth = window.innerWidth;
-            
-            sCanvas.width = viewWidth * dpr;
-            sCanvas.height = viewHeight * dpr;
-            sCtx.scale(dpr, dpr);
-
-            gCanvas.width = viewWidth * dpr;
-            gCanvas.height = document.documentElement.scrollHeight * dpr;
-            gCtx.scale(dpr, dpr);
+            sCanvas.width = viewWidth * dpr; sCanvas.height = viewHeight * dpr; sCtx.scale(dpr, dpr);
+            gCanvas.width = viewWidth * dpr; gCanvas.height = document.documentElement.scrollHeight * dpr; gCtx.scale(dpr, dpr);
         }
-        
-        window.addEventListener('load', resizeCanvases);
-        window.addEventListener('resize', resizeCanvases);
-        resizeCanvases();
-
-        const baselineY = 185;       
-        let lastScrollY = window.scrollY;
-        let isScrollingDown = false;
-        
-        let stopTime = 0;            
-        const DRY_DURATION = 3000;   
-        let scrollTimeout;
-
-        let ghostAlpha = 0;
-
-        // Tracks positions using the highly accurate Top boundary system
-        let scrollStartTopY = 0;
-        let scrollStartWaveOffset = 0;
-        let hasAnchor = false;
+        window.addEventListener('resize', resizeCanvases); resizeCanvases();
 
         window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            
-            if (currentScrollY > lastScrollY) {
-                if (!isScrollingDown) {
-                    isScrollingDown = true;
-                    stopTime = 0;
-                    ghostAlpha = 0.18;
-                    
-                    // Correctly anchor the top of the viewport when scroll starts
-                    if (!hasAnchor) {
-                        scrollStartTopY = lastScrollY;
-                        scrollStartWaveOffset = waveOffsetFront;
-                        hasAnchor = true;
-                    }
-                }
-
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    if (isScrollingDown) {
-                        isScrollingDown = false;
-                        stopTime = performance.now(); 
-                    }
-                }, 120); // Marginally higher window to ensure touchpads process completely
+            if (window.scrollY > lastScrollY) {
+                if (!isScrollingDown) { isScrollingDown = true; stopTime = 0; ghostAlpha = 0.18; if (!hasAnchor) { scrollStartTopY = lastScrollY; scrollStartWaveOffset = waveOffsetFront; hasAnchor = true; } }
+                clearTimeout(scrollTimeout); scrollTimeout = setTimeout(() => { isScrollingDown = false; stopTime = performance.now(); }, 120);
             }
-            lastScrollY = currentScrollY;
+            lastScrollY = window.scrollY;
         });
 
-        let waveOffsetFront = 0;
-        let waveOffsetBack = 0;
-
         function renderLoop(timestamp) {
-            sCtx.clearRect(0, 0, viewWidth, viewHeight);
-
-            waveOffsetFront += 0.018;
-            waveOffsetBack += 0.009;
-
+            sCtx.clearRect(0, 0, viewWidth, viewHeight); waveOffsetFront += 0.018; waveOffsetBack += 0.009;
             if (!isScrollingDown && stopTime > 0) {
                 const elapsed = timestamp - stopTime;
-                if (elapsed < DRY_DURATION) {
-                    const progress = elapsed / DRY_DURATION;
-                    ghostAlpha = 0.18 * (1 - progress);
-                } else {
-                    ghostAlpha = 0;
-                    stopTime = 0;
-                    hasAnchor = false; 
-                }
+                if (elapsed < 3000) ghostAlpha = 0.18 * (1 - (elapsed / 3000));
+                else { ghostAlpha = 0; stopTime = 0; hasAnchor = false; }
             }
-
-            // Foreground runtime wave coordinates
             let currentWaveY = [];
-            for (let x = 0; x < viewWidth; x++) {
-                const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
-                currentWaveY[x] = baselineY + waveShape;
-            }
+            for (let x = 0; x < viewWidth; x++) currentWaveY[x] = 185 + Math.sin(x * 0.006 + waveOffsetFront) * 12;
 
-            // --- RECTIFIED TOP-ANCHORED UNIFIED GEOMETRY (NO BANDING) ---
             if (hasAnchor && ghostAlpha > 0) {
-                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
-
-                gCtx.save();
-                gCtx.filter = 'blur(6px)';
-                gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
-                gCtx.beginPath();
-                
-                // 1. Plot the initial wave shape where the interaction started
-                // Offset calculation is based purely on the document scroll start position
-                const startPlacementY = scrollStartTopY + window.innerHeight - viewHeight;
-                const initialY0 = startPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
-                gCtx.moveTo(0, initialY0);
-                
-                for (let x = 1; x < viewWidth; x++) {
-                    const initialY = startPlacementY + baselineY + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12;
-                    gCtx.lineTo(x, initialY);
-                }
-
-                // 2. Seamlessly close the dynamic polygon using the live front wave coordinates
-                const livePlacementY = window.scrollY + window.innerHeight - viewHeight;
-                for (let x = viewWidth - 1; x >= 0; x--) {
-                    const liveY = livePlacementY + currentWaveY[x];
-                    gCtx.lineTo(x, liveY);
-                }
-
-                gCtx.closePath();
-                gCtx.fill(); 
-                gCtx.restore();
-            } else if (ghostAlpha === 0 && !isScrollingDown) {
-                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height); gCtx.save(); gCtx.filter = 'blur(6px)'; gCtx.fillStyle = `rgba(0,0,0,${ghostAlpha})`; gCtx.beginPath();
+                const startY = scrollStartTopY + window.innerHeight - viewHeight;
+                for (let x = 0; x < viewWidth; x++) gCtx.lineTo(x, startY + 185 + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12);
+                for (let x = viewWidth - 1; x >= 0; x--) gCtx.lineTo(x, (window.scrollY + window.innerHeight - viewHeight) + currentWaveY[x]);
+                gCtx.fill(); gCtx.restore();
             }
 
-            // --- BASEWATER BACKGROUND ACCENT ---
-            sCtx.beginPath();
-            sCtx.moveTo(0, viewHeight);
-            for (let x = 0; x < viewWidth; x++) {
-                const y = baselineY - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14;
-                sCtx.lineTo(x, y);
-            }
-            sCtx.lineTo(viewWidth, viewHeight);
-            sCtx.closePath();
-            sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
-            sCtx.fill();
-
-            // --- FOREGROUND SURFACE WATER ---
-            sCtx.beginPath();
-            sCtx.moveTo(0, viewHeight);
-            for (let x = 0; x < viewWidth; x++) {
-                sCtx.lineTo(x, currentWaveY[x]);
-            }
-            sCtx.lineTo(viewWidth, viewHeight);
-            sCtx.closePath();
-            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
-            sCtx.fill();
-
+            sCtx.beginPath(); sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) sCtx.lineTo(x, 185 - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14);
+            sCtx.lineTo(viewWidth, viewHeight); sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; sCtx.fill();
+            sCtx.beginPath(); sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) sCtx.lineTo(x, currentWaveY[x]);
+            sCtx.lineTo(viewWidth, viewHeight); sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; sCtx.fill();
             requestAnimationFrame(renderLoop);
         }
-
         requestAnimationFrame(renderLoop);
     });
 </script>
