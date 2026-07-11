@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,[...]
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
     <style>
         /* --- GLOBAL SETUP & TYPOGRAPHY --- */
@@ -49,58 +49,13 @@
             opacity: 0.02;
             pointer-events: none;
             z-index: 9999;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequen[...]
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
         a {
             color: inherit;
             text-decoration: none;
             transition: color 0.2s ease;
-        }
-
-        /* --- FIXED LOGOS --- */
-        .logo-top {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            width: 40px;
-            height: 40px;
-            z-index: 1000;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-top img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .logo-bottom {
-            position: fixed;
-            bottom: 12px;
-            right: 12px;
-            width: 40px;
-            height: 40px;
-            z-index: 1000;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-
-        .logo-bottom.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .logo-bottom img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         /* --- NAVIGATION HEADER --- */
@@ -123,11 +78,28 @@
             align-items: center;
         }
 
+        /* --- INSTITUTIONAL BRAND LOGO ASSEMBLY --- */
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            height: 28px;
+            width: auto;
+            display: block;
+            border-radius: 4px;
+            /* Blends white background artifacts smoothly into the cream page */
+            mix-blend-mode: multiply; 
+        }
+
         .brand {
             font-family: "Inter", sans-serif;
             font-weight: 600;
             letter-spacing: -0.02em;
             font-size: 1.05rem;
+            line-height: 1;
         }
         
         .brand-sub {
@@ -411,22 +383,15 @@
 </head>
 <body>
 
-<!-- Logo Top Corner -->
-<div class="logo-top">
-    <img src="logo.jpg" alt="ERG Logo">
-</div>
-
-<!-- Logo Bottom Corner (Scroll) -->
-<div class="logo-bottom">
-    <img src="logo.jpg" alt="ERG Logo">
-</div>
-
 <!-- Sticky Institutional Navigation Header -->
 <header class="site-header">
     <nav aria-label="Main Navigation">
-        <div class="brand">
-            Ergodic Research Group<span class="brand-sub">ERG</span>
-        </div>
+        <a href="index.html" class="brand-container" aria-label="Ergodic Research Group Home">
+            <img src="logo.jpg" alt="Ergodic Research Group Logo" class="brand-logo">
+            <div class="brand">
+                Ergodic Research Group<span class="brand-sub">ERG</span>
+            </div>
+        </a>
         <ul>
             <li><a href="index.html" class="active" aria-current="page">Home</a></li>
             <li><a href="research.html">Research</a></li>
@@ -443,7 +408,7 @@
         <div>
             <h1>Independent research in computation, physics, biology, and intelligent systems.</h1>
             <p class="mission-statement">
-                The Ergodic Research Group (ERG) is an independent interdisciplinary research initiative focused on physics, computer science, biology, artificial intelligence, cryptography, and [...]
+                The Ergodic Research Group (ERG) is an independent interdisciplinary research initiative focused on physics, computer science, biology, artificial intelligence, cryptography, and scientific software. We develop original computational technologies, establish foundational open-source platforms, and maintain long-term investigations outside standard corporate frameworks.
             </p>
         </div>
 
@@ -501,7 +466,7 @@
     <section id="mission" class="reveal">
         <h2>Mission</h2>
         <p class="mission-text">
-            The fundamental mission of the Ergodic Research Group is to probe both standard and non-standard scientific landscapes through transparent experimentation, structural clarity, and met[...]
+            The fundamental mission of the Ergodic Research Group is to probe both standard and non-standard scientific landscapes through transparent experimentation, structural clarity, and meticulous software engineering. Our initiatives prioritize absolute technical reproducibility, long-horizon exploration, and cross-domain architectures designed to function reliably without traditional institutional dependencies.
         </p>
     </section>
 </main>
@@ -526,10 +491,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const revealElements = document.querySelectorAll(".reveal");
-        const logoBottom = document.querySelector(".logo-bottom");
 
         const revealOnScroll = () => {
-            const buffer = 40;
+            const buffer = 40; // Pixels from bottom viewport edge to trigger animation smoothly
             revealElements.forEach(el => {
                 const elementTop = el.getBoundingClientRect().top;
                 const windowHeight = window.innerHeight;
@@ -538,17 +502,13 @@
                     el.classList.add("active");
                 }
             });
-
-            // Show bottom logo when user scrolls down
-            if (window.scrollY > 300) {
-                logoBottom.classList.add("visible");
-            } else {
-                logoBottom.classList.remove("visible");
-            }
         };
 
+        // Initialize and bind events
         window.addEventListener("scroll", revealOnScroll);
         window.addEventListener("resize", revealOnScroll);
+        
+        // Initial check on load execution
         revealOnScroll();
     });
 </script>
