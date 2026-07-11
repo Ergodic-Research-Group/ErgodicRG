@@ -26,7 +26,7 @@
             scroll-behavior: smooth;
         }
 
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -327,6 +327,23 @@
             transform: translateY(0);
         }
 
+        /* --- SHORELINE CANVAS WORKSPACE CONTAINER --- */
+        .shoreline-canvas-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 110px; /* Reduced box height keeps waves beautifully low and small */
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        #shorelineCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
         /* --- RESPONSIVE ADAPTATIONS --- */
         @media (max-width: 960px) {
             .hero {
@@ -488,183 +505,135 @@
     </div>
 </footer>
 
-<!-- Lightweight Scroll Animation Driver -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const revealElements = document.querySelectorAll(".reveal");
-
-        const revealOnScroll = () => {
-            const buffer = 40; // Pixels from bottom viewport edge to trigger animation smoothly
-            revealElements.forEach(el => {
-                const elementTop = el.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (elementTop < windowHeight - buffer) {
-                    el.classList.add("active");
-                }
-            });
-        };
-
-        // Initialize and bind events
-        window.addEventListener("scroll", revealOnScroll);
-        window.addEventListener("resize", revealOnScroll);
-        
-        // Initial check on load execution
-        revealOnScroll();
-    });
-</script>
-    <!-- Dynamic Shoreline Wave with Idle Movement & Drying Wet-Sand Effect -->
-<div class="shoreline-container">
-    <svg class="wave-svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
-        <!-- Layer 1: Wet Sand Footprint (Slowly dries out/fades when wave pulls back) -->
-        <path class="wave-layer wave-wet-sand" d="M0,45L120,48C240,51,480,57,720,56C960,55,1200,47,1320,43L1440,39L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
-        
-        <!-- Layer 2: Deep Ocean Foam/Water (Muted Parallax Backing) -->
-        <path class="wave-layer wave-back" d="M0,32L120,42.7C240,53,480,75,720,74.7C960,75,1200,53,1320,42.7L1440,32L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
-        
-        <!-- Layer 3: Primary Shore Wave (Main moving waterline) -->
-        <path class="wave-layer wave-front" d="M0,64L120,58.7C240,53,480,43,720,48C960,53,1200,75,1320,85.3L1440,96L1440,120L1320,120C1200,120,960,120,720,120C480,120,240,120,120,120L0,120Z"></path>
-    </svg>
-</div>
-
 <!-- Fluid Shoreline Simulation Canvas Element -->
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
 
-<style>
-    .shoreline-canvas-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 180px; /* Tall box for handling maximum wave crest boundaries */
-        z-index: 10;
-        pointer-events: none;
-    }
-    #shorelineCanvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-</style>
-
+<!-- Combined High Performance Driver Script -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const canvas = document.getElementById("shorelineCanvas");
-    const ctx = canvas.getContext("2d");
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- 1. SCROLL REVEAL TIMELINE DRIVER ---
+        const revealElements = document.querySelectorAll(".reveal");
+        const revealOnScroll = () => {
+            const buffer = 40; 
+            revealElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight - buffer) {
+                    el.classList.add("active");
+                }
+            });
+        };
+        window.addEventListener("scroll", revealOnScroll);
+        window.addEventListener("resize", revealOnScroll);
+        revealOnScroll();
 
-    // Dynamic High-DPI Display Scaling Matrix
-    function resizeCanvas() {
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr);
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+        // --- 2. RESCINDING SHORELINE & WET RESIDUE PHYSICS CANVAS ---
+        const canvas = document.getElementById("shorelineCanvas");
+        const ctx = canvas.getContext("2d");
 
-    // Simulation Constants & Environmental Properties
-    const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
-    const CANVAS_HEIGHT = 180;
-    
-    // Core Wave Positioning Constants
-    const baselineY = 40;       // Point A: The initial load-state rest position line
-    const maxRecedeDist = 110;  // How far the tide pulls back at maximum scroll depth
-    let scrollPercent = 0;
-    let targetWaterLine = baselineY;
-    let currentWaterLine = baselineY;
-
-    // Organic Sine Wave Mathematical Modifiers
-    let waveOffsetFront = 0;
-    let waveOffsetBack = 0;
-
-    // --- Damp Array Map: Tracks pixel-by-pixel shore saturation lines ---
-    // Every element maps to a column across the horizontal viewport
-    const dampProfile = new Array(Math.ceil(CANVAS_WIDTH)).fill(baselineY);
-
-    // Tracking scroll coordinates 
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        scrollPercent = maxScroll > 0 ? scrollTop / maxScroll : 0;
-    });
-
-    // Main Fluid Physics & Draw Execution Loop
-    function renderShoreline() {
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        // 1. Calculate the dynamic position of the receding tide
-        targetWaterLine = baselineY + (scrollPercent * maxRecedeDist);
-        // Smooth interpolation dampens jerky scroll transitions
-        currentWaterLine += (targetWaterLine - currentWaterLine) * 0.12;
-
-        // 2. Continuous Organic Wave Idle Motion
-        waveOffsetFront += 0.025;
-        waveOffsetBack += 0.015;
-
-        // --- PHASE I: RENDER BLURRED WET-SAND IMPRINT (POINT A TO TIDE) ---
-        ctx.save();
-        // Native canvas blur simulates real-world evaporation capillary edges
-        ctx.filter = 'blur(10px)'; 
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT);
-
-        for (let x = 0; x < CANVAS_WIDTH; x++) {
-            // Compute current shifting waterline at index X
-            const localWaveCrest = currentWaterLine + Math.sin(x * 0.006 + waveOffsetFront) * 6;
-            
-            // If the water moves past the damp tracker, push the damp profile out to match
-            if (localWaveCrest > dampProfile[x]) {
-                dampProfile[x] = localWaveCrest;
-            } else {
-                // EVAPORATION LOGIC: Slowly dry out and recede back to the current water line over time
-                dampProfile[x] -= 0.12; // Controls drying rate
-                if (dampProfile[x] < localWaveCrest) dampProfile[x] = localWaveCrest;
-            }
-            
-            ctx.lineTo(x, dampProfile[x]);
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
         }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
+        const CANVAS_HEIGHT = 110;
         
-        ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.closePath();
-        // Rich, oceanic deep damp color signature
-        ctx.fillStyle = "rgba(24, 46, 74, 0.09)"; 
-        ctx.fill();
-        ctx.restore();
+        // Custom Tuning Matrices for Small Waves sitting low
+        const baselineY = 55;       // Rest waterline starting height
+        const maxRecedeDist = 50;   // Maximum push depth when scrolling down
+        
+        let scrollPercent = 0;
+        let targetWaterLine = baselineY;
+        let currentWaterLine = baselineY;
 
-        // --- PHASE II: RENDER BACK WAVE LAYER (DEEP WATER SHADE) ---
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT);
-        for (let x = 0; x < CANVAS_WIDTH; x++) {
-            const y = currentWaterLine - 10 + Math.sin(x * 0.005 + waveOffsetBack) * 8 + Math.cos(x * 0.01 + waveOffsetFront) * 3;
-            ctx.lineTo(x, y);
+        let waveOffsetFront = 0;
+        let waveOffsetBack = 0;
+
+        // Damp profile matrix array tracks high water peaks per pixel column
+        const dampProfile = new Array(Math.ceil(CANVAS_WIDTH)).fill(baselineY);
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            scrollPercent = maxScroll > 0 ? scrollTop / maxScroll : 0;
+        });
+
+        function renderShoreline() {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // Compute targeted fluid motion steps
+            targetWaterLine = baselineY + (scrollPercent * maxRecedeDist);
+            currentWaterLine += (targetWaterLine - currentWaterLine) * 0.1;
+
+            waveOffsetFront += 0.02;
+            waveOffsetBack += 0.01;
+
+            // --- LAYER 1: DAMP IMPRINT OVERLAY (POINT A SATURATION TRACKER) ---
+            ctx.save();
+            ctx.filter = 'blur(6px)'; // Soft edges where dry sand mixes with damp paper tones
+            ctx.beginPath();
+            ctx.moveTo(0, CANVAS_HEIGHT);
+
+            for (let x = 0; x < CANVAS_WIDTH; x++) {
+                // Pin dynamic wave peaks on layer boundary
+                const currentWavePos = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
+                
+                if (currentWavePos < dampProfile[x]) {
+                    dampProfile[x] = currentWavePos; // Saturation hits the line instantly
+                } else {
+                    // ACTIVE DRYING TIMELINE: Footprint progressively recedes back downward
+                    dampProfile[x] += 0.15; 
+                    if (dampProfile[x] > currentWavePos) {
+                        dampProfile[x] = currentWavePos;
+                    }
+                }
+                ctx.lineTo(x, dampProfile[x]);
+            }
+            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.closePath();
+            
+            // Subtle transparent grey overlay layers dynamically over any cream background tone
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; 
+            ctx.fill();
+            ctx.restore();
+
+            // --- LAYER 2: OCEAN BACK WAVE (DEEP BLUE ACCENT) ---
+            ctx.beginPath();
+            ctx.moveTo(0, CANVAS_HEIGHT);
+            for (let x = 0; x < CANVAS_WIDTH; x++) {
+                const y = currentWaterLine - 4 + Math.sin(x * 0.005 + waveOffsetBack) * 5;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(41, 102, 163, 0.18)"; 
+            ctx.fill();
+
+            // --- LAYER 3: MAIN FOREGROUND WATER WAVE (PRIMARY SHORELINE BLUE) ---
+            ctx.beginPath();
+            ctx.moveTo(0, CANVAS_HEIGHT);
+            for (let x = 0; x < CANVAS_WIDTH; x++) {
+                const y = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(58, 131, 204, 0.35)"; 
+            ctx.fill();
+
+            requestAnimationFrame(renderShoreline);
         }
-        ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(41, 102, 163, 0.22)"; // Semi-opaque deep ocean blue
-        ctx.fill();
 
-        // --- PHASE III: RENDER FRONT MAIN WAVE LAYER (PRIMARY BLUE WATER) ---
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT);
-        for (let x = 0; x < CANVAS_WIDTH; x++) {
-            const y = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 7;
-            ctx.lineTo(x, y);
-        }
-        ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(58, 131, 204, 0.45)"; // Soft coastal blue hue
-        ctx.fill();
-
-        // Request next frame execution loop
-        requestAnimationFrame(renderShoreline);
-    }
-
-    // Initialize Simulation Loop
-    renderShoreline();
-});
+        renderShoreline();
+    });
 </script>
 </body>
 </html>
