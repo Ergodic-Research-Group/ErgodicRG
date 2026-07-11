@@ -382,10 +382,12 @@
         let canvasWidth = window.innerWidth;
         const canvasHeight = 240;
         
-        let ghostWaveY = [];
+        let stampedGhostPathY = [];
+        let hasSnapshot = false;
 
-        function initGhostPath() {
-            ghostWaveY = new Array(Math.ceil(window.innerWidth)).fill(185);
+        function clearSnapshot() {
+            stampedGhostPathY = new Array(Math.ceil(window.innerWidth)).fill(null);
+            hasSnapshot = false;
         }
 
         function resizeCanvas() {
@@ -394,7 +396,7 @@
             canvas.width = canvasWidth * dpr;
             canvas.height = canvasHeight * dpr;
             ctx.scale(dpr, dpr);
-            initGhostPath();
+            clearSnapshot();
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -405,39 +407,35 @@
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   // Exactly 4 seconds countdown
+        const DRY_DURATION = 4000;   // 4 Seconds fixed global dry window
         let scrollTimeout;
-        
-        let visualDragOffset = 0;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
             if (currentScrollY > lastScrollY) {
-                const structuralDelta = currentScrollY - lastScrollY;
+                const scrollDelta = currentScrollY - lastScrollY;
                 
-                // If starting a new scroll, sync ghost completely to current wave state
-                if (!isScrollingDown) {
-                    isScrollingDown = true;
-                    stopTime = 0;
-                }
+                isScrollingDown = true;
+                stopTime = 0; 
 
-                // Shift the ghost path up directly matching scroll movement
-                // This locks it in place relative to document text frames
-                for (let x = 0; x < canvasWidth; x++) {
-                    ghostWaveY[x] -= structuralDelta;
+                // Physically drag the snapshot array UPWARDS matching text scroll vector.
+                // This keeps the line totally stationary relative to screen elements.
+                if (hasSnapshot) {
+                    for (let x = 0; x < canvasWidth; x++) {
+                        if (stampedGhostPathY[x] !== null) {
+                            stampedGhostPathY[x] -= scrollDelta;
+                        }
+                    }
                 }
-
-                // Track total distance dragged away from baseline
-                visualDragOffset = Math.min(visualDragOffset + structuralDelta, 110);
 
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     if (isScrollingDown) {
                         isScrollingDown = false;
-                        stopTime = performance.now();
+                        stopTime = performance.now(); // Start drying window uniformly here
                     }
-                }, 100);
+                }, 90);
             }
             lastScrollY = currentScrollY;
         });
@@ -459,66 +457,56 @@
             waveOffsetBack += 0.009;
 
             let currentAlpha = 0;
-            let catchUpSpeed = 0; // Lock structural changes during active scrolling
 
             if (isScrollingDown) {
                 currentAlpha = 0.18;
-                catchUpSpeed = 0; // Zero speed = Perfectly stuck to historical position
             } else if (stopTime > 0) {
                 const elapsed = timestamp - stopTime;
                 if (elapsed < DRY_DURATION) {
+                    // Uniform global evaporation across all points simultaneously
                     const progress = elapsed / DRY_DURATION;
                     currentAlpha = 0.18 * (1 - progress);
-                    
-                    // Linear interpolation speed accelerates as drying finishes
-                    catchUpSpeed = 0.03 + (progress * 0.12);
                 } else {
                     currentAlpha = 0;
                     stopTime = 0;
-                    visualDragOffset = 0;
+                    clearSnapshot();
                 }
             }
 
-            // Calculate active frontend wave positions
+            // Calculate active animated wave position
             let currentWaveY = [];
             for (let x = 0; x < canvasWidth; x++) {
                 const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // Update the ghost trail layout positions
-            for (let x = 0; x < canvasWidth; x++) {
-                if (isScrollingDown) {
-                    // While scrolling, make sure ghost wave maintains wave oscillations at its stuck height
-                    const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
-                    const stuckBaseY = currentWaveY[x] - visualDragOffset;
-                    ghostWaveY[x] = stuckBaseY;
-                } else if (catchUpSpeed > 0) {
-                    // Releasing: Smoothly snap ghost wave coordinates down to meet active wave
-                    ghostWaveY[x] += (currentWaveY[x] - ghostWaveY[x]) * catchUpSpeed;
-                } else {
-                    ghostWaveY[x] = currentWaveY[x];
+            // Lock point A imprint the exact frame scroll down initiates
+            if (isScrollingDown && !hasSnapshot) {
+                for (let x = 0; x < canvasWidth; x++) {
+                    stampedGhostPathY[x] = currentWaveY[x];
                 }
+                hasSnapshot = true;
             }
 
-            // --- LAYER 1: PINNED GHOST SHADOW RUNOFF TRAIL ---
-            if (currentAlpha > 0.001 && visualDragOffset > 1) {
+            // --- LAYER 1: ABSOLUTE STATIC DAMP GHOST FOOTPRINT ---
+            if (currentAlpha > 0.001 && hasSnapshot) {
                 ctx.save();
                 ctx.filter = 'blur(5px)'; 
                 ctx.beginPath();
                 
-                // Draw path forward across the stuck ghost wave boundary
-                ctx.moveTo(0, ghostWaveY[0]);
+                // Track forward across the frozen text-stamped upper threshold (Point A)
+                ctx.moveTo(0, stampedGhostPathY[0]);
                 for (let x = 1; x < canvasWidth; x++) {
-                    ctx.lineTo(x, ghostWaveY[x]);
+                    ctx.lineTo(x, stampedGhostPathY[x]);
                 }
 
-                // Trace backward across the current moving runtime wave
+                // Close loop cleanly along the actively moving live shoreline (Point B)
                 for (let x = canvasWidth - 1; x >= 0; x--) {
                     ctx.lineTo(x, currentWaveY[x]);
                 }
 
                 ctx.closePath();
+                // Uniform global fade value applies to whole fill array at once
                 ctx.fillStyle = `rgba(0, 0, 0, ${currentAlpha})`; 
                 ctx.fill();
                 ctx.restore();
