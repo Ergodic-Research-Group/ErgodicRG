@@ -147,12 +147,6 @@
     </div>
 </footer>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const revealElements = document.querySelectorAll(".reveal");
-        revealElements.forEach(el => el.classList.add("active"));
-    });
-</script>
 <div class="ghost-canvas-container">
     <canvas id="ghostCanvas"></canvas>
 </div>
@@ -160,14 +154,25 @@
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
+
+<!-- Reveal Animation Handling -->
 <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const revealElements = document.querySelectorAll(".reveal");
+        revealElements.forEach(el => el.classList.add("active"));
+    });
+</script>
+
+<!-- Shoreline & Ghost Wave Animation Logic -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const sCanvas = document.getElementById("shorelineCanvas");
-        const sCtx = sCanvas.getContext("2d");
+        const sCtx = sCanvas ? sCanvas.getContext("2d") : null;
 
         const gCanvas = document.getElementById("ghostCanvas");
-        const gCtx = gCanvas.getContext("2d");
+        const gCtx = gCanvas ? gCanvas.getContext("2d") : null;
+
+        if (!sCanvas || !gCanvas) return;
 
         let viewWidth = window.innerWidth;
         const viewHeight = 240;
