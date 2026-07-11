@@ -221,50 +221,13 @@
             box-shadow: 0 12px 30px rgba(27, 25, 22, 0.04);
         }
 
-        .mission-text {
-            max-width: 800px;
-            color: var(--text-muted);
-            font-size: 1.15rem;
-            line-height: 1.8;
-        }
-
-        /* --- ACADEMIC FOOTER --- */
-        footer {
-            margin-top: 100px;
-            border-top: 1px solid var(--border-color);
-            padding: 60px 30px;
-            background-color: rgba(0, 0, 0, 0.01);
-        }
-
-        .footer-inner {
-            max-width: 1090px;
-            margin: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 40px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         /* --- SHORELINE CANVAS WORKSPACE CONTAINER --- */
         .shoreline-canvas-container {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 160px; /* Expanded space to accommodate high dynamic wet overlay reach */
+            height: 180px; /* Spacious clear canvas viewport window */
             z-index: 10;
             pointer-events: none;
         }
@@ -300,7 +263,7 @@
 </header>
 
 <main>
-    <header class="hero reveal">
+    <header class="hero">
         <div>
             <h1>Independent research in computation, physics, biology, and intelligent systems.</h1>
             <p class="mission-statement">
@@ -314,14 +277,14 @@
             </div>
             <div class="side-block">
                 <h3>Status</h3>
-                <p>Independent<br>Est. 2025 &bull; Global Distributed Group</p>
+                <p>Independent <br>Est. 2025 &bull; Global Distributed Group</p>
             </div>
         </aside>
     </header>
 
     <hr class="section-divider">
 
-    <section id="research-areas" class="reveal">
+    <section id="research-areas">
         <h2>Research Areas</h2>
         <div class="grid">
             <div class="card" tabindex="0">
@@ -357,22 +320,11 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // --- 1. SCROLL REVEAL TIMELINE DRIVER ---
-        const revealElements = document.querySelectorAll(".reveal");
-        const revealOnScroll = () => {
-            revealElements.forEach(el => {
-                if (el.getBoundingClientRect().top < window.innerHeight - 40) el.classList.add("active");
-            });
-        };
-        window.addEventListener("scroll", revealOnScroll);
-        revealOnScroll();
-
-        // --- 2. THE STICKY OVERLAY SHORELINE & 4-SECOND BLENDING MATRIX ---
         const canvas = document.getElementById("shorelineCanvas");
         const ctx = canvas.getContext("2d");
 
         let canvasWidth = window.innerWidth;
-        const canvasHeight = 160;
+        const canvasHeight = 180;
         
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
@@ -384,32 +336,35 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const baselineY = 110;       // Main resting line for water (near bottom of canvas)
-        let targetWetStretch = 0;   // How far up the screen the wet overlay is stretched
-        let currentWetStretch = 0;
-        let wetAlpha = 0;           // Opacity of the damp overlay track
+        const baselineY = 135;       // Water line rest position at the bottom of the viewport
+        let currentWetStretch = 0;   // Realized stretch amplitude
+        let targetWetStretch = 0;    // Target drag height based on scroll speed
+        let wetAlpha = 0;           // Opacity multiplier for the damp footprint
         
         let lastScrollY = window.scrollY;
+        let scrollVelocity = 0;
         let scrollTimeout = null;
         let isScrolling = false;
 
+        // Active velocity parser fixes the canvas scroll decoupled sync issue
         window.addEventListener('scroll', () => {
             isScrolling = true;
             const currentScrollY = window.scrollY;
             const delta = Math.abs(currentScrollY - lastScrollY);
             lastScrollY = currentScrollY;
 
-            // Generate upward drag stretch based directly on scroll momentum
-            targetWetStretch = Math.min(80, targetWetStretch + delta * 0.4);
-            wetAlpha = 0.06; // Instantly set to maximum dark cream depth value while moving
-
-            // Cleanly clear out previous timers to prevent drying mid-scroll
-            clearTimeout(scrollTimeout);
+            // Instantly pull up the overlay tracking matrix proportionally to the scroll velocity
+            scrollVelocity = Math.min(65, scrollVelocity + delta * 0.45);
+            targetWetStretch = scrollVelocity;
             
-            // Trigger accurate 4-second evaporation loop (4000ms) once scroll events finish
+            // Lock active damp footprint alpha density on motion
+            wetAlpha = Math.min(0.065, wetAlpha + 0.02);
+
+            clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 isScrolling = false;
-            }, 50);
+                scrollVelocity = 0;
+            }, 60);
         });
 
         let waveOffsetFront = 0;
@@ -418,26 +373,25 @@
         function renderShoreline() {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-            waveOffsetFront += 0.025;
-            waveOffsetBack += 0.012;
+            waveOffsetFront += 0.022;
+            waveOffsetBack += 0.011;
 
-            // Smooth out dynamic calculations
+            // EVAPORATION TIMELINE HANDLING: Programmed for a precise 4-second exponential fallback curve
             if (!isScrolling) {
-                // Return damp footprint down and dry the alpha transparency smoothly over ~4 seconds
-                targetWetStretch += (0 - targetWetStretch) * 0.02; 
-                wetAlpha += (0 - wetAlpha) * 0.015; 
+                targetWetStretch += (0 - targetWetStretch) * 0.015; // Elastic contraction back to water line
+                wetAlpha += (0 - wetAlpha) * 0.012;               // Alpha visual fade away matrix loop (~4 seconds)
             }
-            currentWetStretch += (targetWetStretch - currentWetStretch) * 0.1;
+            currentWetStretch += (targetWetStretch - currentWetStretch) * 0.08;
 
-            // --- LAYER 1: PERFECT STICKY WET OVERLAY (DARKENS UNDERLYING CREAM) ---
+            // --- LAYER 1: STICKY DAMP RESIDUE OVERLAY (PERFECT MATCHING SHAPE) ---
             if (wetAlpha > 0.001) {
                 ctx.save();
-                ctx.filter = 'blur(6px)'; // Soft blend edge architecture
+                ctx.filter = 'blur(6px)'; // Soft blending feather blur edge directly into paper color
                 ctx.beginPath();
                 ctx.moveTo(0, canvasHeight);
 
                 for (let x = 0; x < canvasWidth; x++) {
-                    // Match the exact wave structure but pulled upward on the page coordinate grid
+                    // Re-evaluates exact primary wave formula, shifted upward matching scroll drag displacement
                     const waveShape = Math.sin(x * 0.007 + waveOffsetFront) * 4;
                     const y = baselineY + waveShape - currentWetStretch;
                     ctx.lineTo(x, y);
@@ -461,7 +415,7 @@
             ctx.fillStyle = "rgba(41, 102, 163, 0.15)"; 
             ctx.fill();
 
-            // --- LAYER 3: PRIMARY SURF LAYER (FOREGROUND WAVE) ---
+            // --- LAYER 3: INCOMING WATER WATER SURFACE (PRIMARY FOREGROUND SURF) ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
