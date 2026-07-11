@@ -221,7 +221,7 @@
             box-shadow: 0 12px 30px rgba(27, 25, 22, 0.04);
         }
 
-        /* --- PREMIUM ACADEMIC FOOTER RESTYLING --- */
+        /* --- ACADEMIC BALANCED FOOTER --- */
         footer {
             margin-top: 140px;
             border-top: 1px solid var(--border-color);
@@ -261,13 +261,13 @@
             color: var(--text-light);
         }
 
-        /* --- SHORELINE CANVAS WORKSPACE CONTAINER --- */
+        /* --- SHORELINE CANVAS CONTAINER --- */
         .shoreline-canvas-container {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 220px; 
+            height: 240px; 
             z-index: 10;
             pointer-events: none;
         }
@@ -380,7 +380,7 @@
         const ctx = canvas.getContext("2d");
 
         let canvasWidth = window.innerWidth;
-        const canvasHeight = 220;
+        const canvasHeight = 240;
         
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
@@ -392,56 +392,43 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const baselineY = 175;       // Rest position for the baseline water surface
-        let wetStretch = 0;          // Dynamic Y axis amplitude stretch tracker
+        const baselineY = 185;       // Waterline rest level
         
         let lastScrollY = window.scrollY;
         let isScrollingDown = false;
         
-        // Accurate Time Multiplier States
-        let stopTime = 0;            // Epoch tracking marker for the 4-second decay window
-        const DRY_DURATION = 4000;   // Exactly 4000 milliseconds (4 seconds)
-        let maxWetStretchAtStop = 0; 
+        let stopTime = 0;            
+        const DRY_DURATION = 4000;   // Exactly 4 seconds
+        let scrollTimeout;
+        let currentTargetAlpha = 0;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
-            // DIRECTIONAL GATE: Exclusively fires on Scroll-Down events
+            // GATE: Only trigger on down scrolls
             if (currentScrollY > lastScrollY) {
                 isScrollingDown = true;
-                const delta = currentScrollY - lastScrollY;
                 
-                // NO DRAG TIMING LAG: Instantly lock footprint directly to frame coordinates
-                wetStretch = Math.min(105, wetStretch + delta * 1.1);
-                
-                // Keep setting stopTime to future while moving so decay calculations don't trigger yet
+                // Immediately wake up the damp overlay transparency at its target depth tone
+                currentTargetAlpha = 0.16;
                 stopTime = 0; 
+
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    if (isScrollingDown) {
+                        isScrollingDown = false;
+                        stopTime = performance.now();
+                    }
+                }, 50);
             }
-            
             lastScrollY = currentScrollY;
         });
 
-        // Catch the exact frame scroll momentum settles to start the 4s stopwatch
         window.addEventListener('scrollend', () => {
             if (isScrollingDown) {
                 isScrollingDown = false;
                 stopTime = performance.now();
-                maxWetStretchAtStop = wetStretch;
             }
-        });
-
-        // Fail-safe timeout fallback handler for older browsers lacking 'scrollend' event native support
-        let scrollTimeout;
-        window.addEventListener('scroll', () => {
-            if (!isScrollingDown) return;
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                if (isScrollingDown) {
-                    isScrollingDown = false;
-                    stopTime = performance.now();
-                    maxWetStretchAtStop = wetStretch;
-                }
-            }, 60);
         });
 
         let waveOffsetFront = 0;
@@ -450,73 +437,69 @@
         function renderShoreline(timestamp) {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-            waveOffsetFront += 0.022;
-            waveOffsetBack += 0.011;
+            waveOffsetFront += 0.018;
+            waveOffsetBack += 0.009;
 
             let currentAlpha = 0;
 
             if (isScrollingDown) {
-                // Instantly present while moving downward
-                currentAlpha = 0.15;
+                currentAlpha = currentTargetAlpha;
             } else if (stopTime > 0) {
-                // STRICTOR 4-SECOND TIMED MATRIX
                 const elapsed = timestamp - stopTime;
                 if (elapsed < DRY_DURATION) {
-                    // Linear progress slider from 1.0 down to 0 over exactly 4000ms
-                    const progress = elapsed / DRY_DURATION; 
-                    currentAlpha = 0.15 * (1 - progress);
-                    wetStretch = maxWetStretchAtStop * (1 - progress);
+                    const progress = elapsed / DRY_DURATION;
+                    // Strict linear regression fading away over exactly 4000ms
+                    currentAlpha = 0.16 * (1 - progress);
                 } else {
-                    // Reset to dry once clock hits exactly 4 seconds
                     currentAlpha = 0;
-                    wetStretch = 0;
                     stopTime = 0;
                 }
-            } else {
-                wetStretch = 0;
             }
 
-            // --- LAYER 1: STRICT 4-SECOND DAMP PROFILE OVERLAY ---
+            // --- LAYER 1: STRICT 4-SECOND PINS-DOWN DAMP CREAM BACKGROUND OVERLAY ---
             if (currentAlpha > 0.001) {
                 ctx.save();
                 ctx.filter = 'blur(6px)'; 
                 ctx.beginPath();
-                ctx.moveTo(0, canvasHeight);
+                
+                // Start drawing from the absolute top boundary of the canvas element
+                ctx.moveTo(0, 0);
+                ctx.lineTo(canvasWidth, 0);
 
-                for (let x = 0; x < canvasWidth; x++) {
-                    const waveShape = Math.sin(x * 0.007 + waveOffsetFront) * 4;
-                    const y = baselineY + waveShape - wetStretch;
+                // Run down to meet the changing organic crest paths perfectly
+                for (let x = canvasWidth; x >= 0; x--) {
+                    const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
+                    const y = baselineY + waveShape;
                     ctx.lineTo(x, y);
                 }
-                ctx.lineTo(canvasWidth, canvasHeight);
                 ctx.closePath();
                 ctx.fillStyle = `rgba(0, 0, 0, ${currentAlpha})`; 
                 ctx.fill();
                 ctx.restore();
             }
 
-            // --- LAYER 2: BACK OCEAN ACCENT WAVE ---
+            // --- LAYER 2: DEEPER BACKGROUND ACCENT LAYER ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
-                const y = baselineY - 4 + Math.sin(x * 0.005 + waveOffsetBack) * 5;
+                const y = baselineY - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14;
                 ctx.lineTo(x, y);
             }
             ctx.lineTo(canvasWidth, canvasHeight);
             ctx.closePath();
-            ctx.fillStyle = "rgba(41, 102, 163, 0.15)"; 
+            ctx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
             ctx.fill();
 
-            // --- LAYER 3: FOREGROUND OCEAN SURFACE WAVE ---
+            // --- LAYER 3: FOREGROUND SURFACE RUNOFF WAVE ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
-                const y = baselineY + Math.sin(x * 0.007 + waveOffsetFront) * 4;
+                const y = baselineY + Math.sin(x * 0.006 + waveOffsetFront) * 12;
                 ctx.lineTo(x, y);
             }
             ctx.lineTo(canvasWidth, canvasHeight);
             ctx.closePath();
-            ctx.fillStyle = "rgba(58, 131, 204, 0.32)"; 
+            ctx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
             ctx.fill();
 
             requestAnimationFrame(renderShoreline);
