@@ -13,12 +13,12 @@
     <style>
         /* --- GLOBAL SETUP & TYPOGRAPHY --- */
         :root {
-            --bg-color: #f6f2e9;        /* Warm institutional cream */
-            --text-main: #1c1c1c;       /* Off-black for high readability */
-            --text-muted: #555555;      /* Secondary descriptive text */
-            --text-light: #767676;      /* Meta captions & structure tags */
-            --border-color: #e5dfd3;    /* Soft tone-matched layout lines */
-            --card-bg: #faf7f2;         /* Slightly lifted background for cards */
+            --bg-color: #f6f2e9;        
+            --text-main: #1c1c1c;       
+            --text-muted: #555555;      
+            --text-light: #767676;      
+            --border-color: #e5dfd3;    
+            --card-bg: #faf7f2;         
             --accent-hover: #000000;
         }
 
@@ -58,7 +58,6 @@
             transition: color 0.2s ease;
         }
 
-        /* --- NAVIGATION HEADER --- */
         header.site-header {
             position: sticky;
             top: 0;
@@ -128,7 +127,6 @@
             color: var(--text-main);
         }
 
-        /* --- HERO LAYOUT --- */
         .hero {
             max-width: 1150px;
             margin: 90px auto 70px auto;
@@ -178,7 +176,6 @@
             line-height: 1.65;
         }
 
-        /* --- STRUCTURAL SECTIONS --- */
         section {
             max-width: 1150px;
             margin: auto;
@@ -221,7 +218,6 @@
             box-shadow: 0 12px 30px rgba(27, 25, 22, 0.04);
         }
 
-        /* --- ACADEMIC BALANCED FOOTER --- */
         footer {
             margin-top: 140px;
             border-top: 1px solid var(--border-color);
@@ -261,7 +257,25 @@
             color: var(--text-light);
         }
 
-        /* --- SHORELINE CANVAS CONTAINER --- */
+        /* --- THE TWO DISTINCT CANVAS SYSTEMS --- */
+        
+        /* 1. Ghost Trail Canvas: Sits fully inside the absolute body document flow */
+        .ghost-canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        #ghostCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* 2. Active Shoreline Canvas: Stays fixed to the viewport window layer */
         .shoreline-canvas-container {
             position: fixed;
             bottom: 0;
@@ -271,7 +285,6 @@
             z-index: 10;
             pointer-events: none;
         }
-        
         #shorelineCanvas {
             width: 100%;
             height: 100%;
@@ -284,14 +297,8 @@
         }
 
         @media (max-width: 640px) {
-            .footer-inner {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 24px;
-            }
-            .footer-right {
-                text-align: left;
-            }
+            .footer-inner { flex-direction: column; align-items: flex-start; gap: 24px; }
+            .footer-right { text-align: left; }
         }
     </style>
 </head>
@@ -313,7 +320,7 @@
     </nav>
 </header>
 
-<main>
+<main style="position: relative; z-index: 5;">
     <header class="hero">
         <div>
             <h1>Independent research in computation, physics, biology, and intelligent systems.</h1>
@@ -328,7 +335,7 @@
             </div>
             <div class="side-block">
                 <h3>Status</h3>
-                <p>Independent <br>Est. 2025 &bull; Global Distributed Group</p>
+                <p>Independent<br>Est. 2025 &bull; Global Distributed Group</p>
             </div>
         </aside>
     </header>
@@ -370,175 +377,168 @@
     </div>
 </footer>
 
+<!-- Background absolute layer holding stamped footprints -->
+<div class="ghost-canvas-container">
+    <canvas id="ghostCanvas"></canvas>
+</div>
+
+<!-- Foreground viewport layer holding running blue water -->
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const canvas = document.getElementById("shorelineCanvas");
-        const ctx = canvas.getContext("2d");
+        const sCanvas = document.getElementById("shorelineCanvas");
+        const sCtx = sCanvas.getContext("2d");
 
-        let canvasWidth = window.innerWidth;
-        const canvasHeight = 240;
+        const gCanvas = document.getElementById("ghostCanvas");
+        const gCtx = gCanvas.getContext("2d");
+
+        let viewWidth = window.innerWidth;
+        const viewHeight = 240;
         
-        let stampedGhostPathY = [];
-        let hasSnapshot = false;
-
-        function clearSnapshot() {
-            stampedGhostPathY = new Array(Math.ceil(window.innerWidth)).fill(null);
-            hasSnapshot = false;
-        }
-
-        function resizeCanvas() {
+        function resizeCanvases() {
             const dpr = window.devicePixelRatio || 1;
-            canvasWidth = window.innerWidth;
-            canvas.width = canvasWidth * dpr;
-            canvas.height = canvasHeight * dpr;
-            ctx.scale(dpr, dpr);
-            clearSnapshot();
+            viewWidth = window.innerWidth;
+            
+            // Layout Viewport Setup
+            sCanvas.width = viewWidth * dpr;
+            sCanvas.height = viewHeight * dpr;
+            sCtx.scale(dpr, dpr);
+
+            // Infinite Document Canvas Setup
+            gCanvas.width = viewWidth * dpr;
+            gCanvas.height = document.documentElement.scrollHeight * dpr;
+            gCtx.scale(dpr, dpr);
         }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        
+        window.addEventListener('load', resizeCanvases);
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
         const baselineY = 185;       
-        
         let lastScrollY = window.scrollY;
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   // 4 Seconds fixed global dry window
+        const DRY_DURATION = 4000;   // Exactly 4 seconds uniform fade window
         let scrollTimeout;
+
+        // Tracks the global alpha of the static ghost trail layer
+        let ghostAlpha = 0;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
             if (currentScrollY > lastScrollY) {
-                const scrollDelta = currentScrollY - lastScrollY;
-                
                 isScrollingDown = true;
-                stopTime = 0; 
-
-                // Physically drag the snapshot array UPWARDS matching text scroll vector.
-                // This keeps the line totally stationary relative to screen elements.
-                if (hasSnapshot) {
-                    for (let x = 0; x < canvasWidth; x++) {
-                        if (stampedGhostPathY[x] !== null) {
-                            stampedGhostPathY[x] -= scrollDelta;
-                        }
-                    }
-                }
+                stopTime = 0;
+                ghostAlpha = 0.18; // Instantly illuminate ghost footprints
 
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     if (isScrollingDown) {
                         isScrollingDown = false;
-                        stopTime = performance.now(); // Start drying window uniformly here
+                        stopTime = performance.now(); // Start the 4 second timer
                     }
-                }, 90);
+                }, 80);
             }
             lastScrollY = currentScrollY;
-        });
-
-        window.addEventListener('scrollend', () => {
-            if (isScrollingDown) {
-                isScrollingDown = false;
-                stopTime = performance.now();
-            }
         });
 
         let waveOffsetFront = 0;
         let waveOffsetBack = 0;
 
-        function renderShoreline(timestamp) {
-            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        function renderLoop(timestamp) {
+            // 1. Clear Active Water Layer Viewport
+            sCtx.clearRect(0, 0, viewWidth, viewHeight);
 
             waveOffsetFront += 0.018;
             waveOffsetBack += 0.009;
 
-            let currentAlpha = 0;
-
-            if (isScrollingDown) {
-                currentAlpha = 0.18;
-            } else if (stopTime > 0) {
+            // Handle the uniform 4-second dry down window after scrolling halts
+            if (!isScrollingDown && stopTime > 0) {
                 const elapsed = timestamp - stopTime;
                 if (elapsed < DRY_DURATION) {
-                    // Uniform global evaporation across all points simultaneously
                     const progress = elapsed / DRY_DURATION;
-                    currentAlpha = 0.18 * (1 - progress);
+                    ghostAlpha = 0.18 * (1 - progress);
                 } else {
-                    currentAlpha = 0;
+                    ghostAlpha = 0;
                     stopTime = 0;
-                    clearSnapshot();
                 }
             }
 
-            // Calculate active animated wave position
+            // Calculate active viewport runtime wave coordinates
             let currentWaveY = [];
-            for (let x = 0; x < canvasWidth; x++) {
+            for (let x = 0; x < viewWidth; x++) {
                 const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // Lock point A imprint the exact frame scroll down initiates
-            if (isScrollingDown && !hasSnapshot) {
-                for (let x = 0; x < canvasWidth; x++) {
-                    stampedGhostPathY[x] = currentWaveY[x];
-                }
-                hasSnapshot = true;
-            }
+            // --- LAYER 1: STAMP GHOST FOOTPRINTS DIRECTLY ONTO DOCUMENT SPACE ---
+            // If user is actively scrolling down, draw the trail directly onto the absolute document canvas
+            if (isScrollingDown) {
+                const currentScroll = window.scrollY;
+                // Find where the bottom of the screen currently intersects the master document height
+                const viewportBottomY = currentScroll + window.innerHeight;
+                const canvasPlacementY = viewportBottomY - viewHeight;
 
-            // --- LAYER 1: ABSOLUTE STATIC DAMP GHOST FOOTPRINT ---
-            if (currentAlpha > 0.001 && hasSnapshot) {
-                ctx.save();
-                ctx.filter = 'blur(5px)'; 
-                ctx.beginPath();
+                gCtx.save();
+                gCtx.filter = 'blur(4px)';
+                gCtx.fillStyle = "rgba(0, 0, 0, 0.04)"; // Draw with light increments to make a smooth path
+                gCtx.beginPath();
                 
-                // Track forward across the frozen text-stamped upper threshold (Point A)
-                ctx.moveTo(0, stampedGhostPathY[0]);
-                for (let x = 1; x < canvasWidth; x++) {
-                    ctx.lineTo(x, stampedGhostPathY[x]);
+                // Draw path relative to the document layer coordinates
+                gCtx.moveTo(0, canvasPlacementY + currentWaveY[0]);
+                for (let x = 1; x < viewWidth; x++) {
+                    gCtx.lineTo(x, canvasPlacementY + currentWaveY[x]);
                 }
-
-                // Close loop cleanly along the actively moving live shoreline (Point B)
-                for (let x = canvasWidth - 1; x >= 0; x--) {
-                    ctx.lineTo(x, currentWaveY[x]);
-                }
-
-                ctx.closePath();
-                // Uniform global fade value applies to whole fill array at once
-                ctx.fillStyle = `rgba(0, 0, 0, ${currentAlpha})`; 
-                ctx.fill();
-                ctx.restore();
+                gCtx.lineTo(viewWidth, canvasPlacementY + viewHeight);
+                gCtx.lineTo(0, canvasPlacementY + viewHeight);
+                gCtx.closePath();
+                gCtx.fill();
+                gCtx.restore();
             }
 
-            // --- LAYER 2: DEEPER BACKGROUND ACCENT LAYER ---
-            ctx.beginPath();
-            ctx.moveTo(0, canvasHeight);
-            for (let x = 0; x < canvasWidth; x++) {
+            // Render the absolute document ghost layer opacity dynamically
+            if (ghostAlpha > 0) {
+                gCanvas.style.opacity = (ghostAlpha / 0.18).toFixed(3);
+            } else {
+                gCanvas.style.opacity = "0";
+                // When fully dried out, clear the layout history so it's fresh for next scroll sequence
+                if (stopTime === 0 && !isScrollingDown) {
+                    gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+                }
+            }
+
+            // --- LAYER 2: MOVING BASEWATER BACKGROUND ACCENT ---
+            sCtx.beginPath();
+            sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) {
                 const y = baselineY - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14;
-                ctx.lineTo(x, y);
+                sCtx.lineTo(x, y);
             }
-            ctx.lineTo(canvasWidth, canvasHeight);
-            ctx.closePath();
-            ctx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
-            ctx.fill();
+            sCtx.lineTo(viewWidth, viewHeight);
+            sCtx.closePath();
+            sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
+            sCtx.fill();
 
-            // --- LAYER 3: FOREGROUND SURFACE RUNOFF WAVE ---
-            ctx.beginPath();
-            ctx.moveTo(0, canvasHeight);
-            for (let x = 0; x < canvasWidth; x++) {
-                ctx.lineTo(x, currentWaveY[x]);
+            // --- LAYER 3: MOVING FOREGROUND SURFACE WATER ---
+            sCtx.beginPath();
+            sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) {
+                sCtx.lineTo(x, currentWaveY[x]);
             }
-            ctx.lineTo(canvasWidth, canvasHeight);
-            ctx.closePath();
-            ctx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
-            ctx.fill();
+            sCtx.lineTo(viewWidth, viewHeight);
+            sCtx.closePath();
+            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
+            sCtx.fill();
 
-            requestAnimationFrame(renderShoreline);
+            requestAnimationFrame(renderLoop);
         }
 
-        requestAnimationFrame(renderShoreline);
+        requestAnimationFrame(renderLoop);
     });
 </script>
 </body>
