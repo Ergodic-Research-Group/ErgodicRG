@@ -91,7 +91,6 @@
             width: auto;
             display: block;
             border-radius: 4px;
-            /* Blends white background artifacts smoothly into the cream page */
             mix-blend-mode: multiply; 
         }
 
@@ -131,7 +130,6 @@
             color: var(--text-main);
         }
         
-        /* Minimalist text underline transition */
         nav ul li a::after {
             content: '';
             position: absolute;
@@ -303,17 +301,6 @@
             border-bottom: 1px solid var(--text-main);
         }
 
-        /* --- ACCESSIBILITY & FOCUS STATES --- */
-        a:focus-visible {
-            outline: 2px dashed var(--text-main);
-            outline-offset: 4px;
-        }
-        
-        .card:focus-within {
-            outline: 2px dashed var(--text-main);
-            outline-offset: 4px;
-        }
-
         /* --- SCROLL ANIMATION SUBTLETIES --- */
         .reveal {
             opacity: 0;
@@ -333,7 +320,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 110px; /* Reduced box height keeps waves beautifully low and small */
+            height: 110px; 
             z-index: 10;
             pointer-events: none;
         }
@@ -401,7 +388,6 @@
 </head>
 <body>
 
-<!-- Sticky Institutional Navigation Header -->
 <header class="site-header">
     <nav aria-label="Main Navigation">
         <a href="index.html" class="brand-container" aria-label="Ergodic Research Group Home">
@@ -420,7 +406,6 @@
     </nav>
 </header>
 
-<!-- Academic Hero Section -->
 <main>
     <header class="hero reveal">
         <div>
@@ -452,7 +437,6 @@
 
     <hr class="section-divider">
 
-    <!-- Research Areas Section -->
     <section id="research-areas" class="reveal">
         <h2>Research Areas</h2>
         <div class="grid">
@@ -480,7 +464,6 @@
 
     <hr class="section-divider">
 
-    <!-- Mission Section -->
     <section id="mission" class="reveal">
         <h2>Mission</h2>
         <p class="mission-text">
@@ -489,7 +472,6 @@
     </section>
 </main>
 
-<!-- Timeless Academic Footer -->
 <footer>
     <div class="footer-inner">
         <div class="footer-brand">
@@ -505,15 +487,13 @@
     </div>
 </footer>
 
-<!-- Fluid Shoreline Simulation Canvas Element -->
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
 
-<!-- Combined High Performance Driver Script -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // --- 1. SCROLL REVEAL TIMELINE DRIVER ---
+        // --- 1. SCROLL REVEAL DRIVER ---
         const revealElements = document.querySelectorAll(".reveal");
         const revealOnScroll = () => {
             const buffer = 40; 
@@ -529,36 +509,33 @@
         window.addEventListener("resize", revealOnScroll);
         revealOnScroll();
 
-        // --- 2. RESCINDING SHORELINE & WET RESIDUE PHYSICS CANVAS ---
+        // --- 2. DYNAMIC SHORELINE & EVAPORATING DARK CREAM WET-LOOK MATRIX ---
         const canvas = document.getElementById("shorelineCanvas");
         const ctx = canvas.getContext("2d");
 
+        let canvasWidth = window.innerWidth;
+        const canvasHeight = 110;
+        
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
+            canvasWidth = window.innerWidth;
+            canvas.width = canvasWidth * dpr;
+            canvas.height = canvasHeight * dpr;
             ctx.scale(dpr, dpr);
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
-        const CANVAS_HEIGHT = 110;
-        
-        // Custom Tuning Matrices for Small Waves sitting low
-        const baselineY = 55;       // Rest waterline starting height
-        const maxRecedeDist = 50;   // Maximum push depth when scrolling down
+        const baselineY = 30;       // Point A initial resting line (higher up on canvas = lower coordinate value)
+        const maxRecedeDist = 55;   // Distance wave recedes when scrolled completely down
         
         let scrollPercent = 0;
-        let targetWaterLine = baselineY;
         let currentWaterLine = baselineY;
-
         let waveOffsetFront = 0;
         let waveOffsetBack = 0;
 
-        // Damp profile matrix array tracks high water peaks per pixel column
-        const dampProfile = new Array(Math.ceil(CANVAS_WIDTH)).fill(baselineY);
+        // Tracks Point A's historic tide line per pixel column to generate the exact wave shape overlay
+        let dampProfile = new Array(Math.ceil(window.screen.width)).fill(baselineY);
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
@@ -567,66 +544,74 @@
         });
 
         function renderShoreline() {
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-            // Compute targeted fluid motion steps
-            targetWaterLine = baselineY + (scrollPercent * maxRecedeDist);
-            currentWaterLine += (targetWaterLine - currentWaterLine) * 0.1;
+            // Water pushes out / recedes down screen as user scrolls down
+            const targetWaterLine = baselineY + (scrollPercent * maxRecedeDist);
+            currentWaterLine += (targetWaterLine - currentWaterLine) * 0.08;
 
-            waveOffsetFront += 0.02;
-            waveOffsetBack += 0.01;
+            waveOffsetFront += 0.025;
+            waveOffsetBack += 0.012;
 
-            // --- LAYER 1: DAMP IMPRINT OVERLAY (POINT A SATURATION TRACKER) ---
+            // Make sure array is wide enough if viewport stretches
+            if (dampProfile.length < canvasWidth) {
+                const oldLength = dampProfile.length;
+                dampProfile.length = Math.ceil(canvasWidth);
+                dampProfile.fill(baselineY, oldLength);
+            }
+
+            // --- LAYER 1: PERFECT WAVE-SHAPED WET RESIDUE (DARK CREAM SATURATION) ---
             ctx.save();
-            ctx.filter = 'blur(6px)'; // Soft edges where dry sand mixes with damp paper tones
+            ctx.filter = 'blur(5px)'; // Blurs cleanly into paper cream background texture
             ctx.beginPath();
-            ctx.moveTo(0, CANVAS_HEIGHT);
+            ctx.moveTo(0, canvasHeight);
 
-            for (let x = 0; x < CANVAS_WIDTH; x++) {
-                // Pin dynamic wave peaks on layer boundary
-                const currentWavePos = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
-                
-                if (currentWavePos < dampProfile[x]) {
-                    dampProfile[x] = currentWavePos; // Saturation hits the line instantly
+            for (let x = 0; x < canvasWidth; x++) {
+                // Compute exact real-time wave point position
+                const currentWaveShapeY = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
+
+                // If wave is higher than damp line (smaller Y value), update high water mark shape instantly
+                if (currentWaveShapeY < dampProfile[x]) {
+                    dampProfile[x] = currentWaveShapeY;
                 } else {
-                    // ACTIVE DRYING TIMELINE: Footprint progressively recedes back downward
-                    dampProfile[x] += 0.15; 
-                    if (dampProfile[x] > currentWavePos) {
-                        dampProfile[x] = currentWavePos;
+                    // SLOW EVAPORATION LOOP: Residue dries down screen toward the receding wave
+                    dampProfile[x] += 0.18; 
+                    if (dampProfile[x] > currentWaveShapeY) {
+                        dampProfile[x] = currentWaveShapeY;
                     }
                 }
                 ctx.lineTo(x, dampProfile[x]);
             }
-            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.lineTo(canvasWidth, canvasHeight);
             ctx.closePath();
             
-            // Subtle transparent grey overlay layers dynamically over any cream background tone
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; 
+            // Multiply-blend transparency to organically darken underlying `#f6f2e9` cream
+            ctx.fillStyle = "rgba(0, 0, 0, 0.045)"; 
             ctx.fill();
             ctx.restore();
 
-            // --- LAYER 2: OCEAN BACK WAVE (DEEP BLUE ACCENT) ---
+            // --- LAYER 2: DEEP OCEAN ACCENT LAYER ---
             ctx.beginPath();
-            ctx.moveTo(0, CANVAS_HEIGHT);
-            for (let x = 0; x < CANVAS_WIDTH; x++) {
-                const y = currentWaterLine - 4 + Math.sin(x * 0.005 + waveOffsetBack) * 5;
+            ctx.moveTo(0, canvasHeight);
+            for (let x = 0; x < canvasWidth; x++) {
+                const y = currentWaterLine - 3 + Math.sin(x * 0.005 + waveOffsetBack) * 5;
                 ctx.lineTo(x, y);
             }
-            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.lineTo(canvasWidth, canvasHeight);
             ctx.closePath();
-            ctx.fillStyle = "rgba(41, 102, 163, 0.18)"; 
+            ctx.fillStyle = "rgba(41, 102, 163, 0.15)"; 
             ctx.fill();
 
-            // --- LAYER 3: MAIN FOREGROUND WATER WAVE (PRIMARY SHORELINE BLUE) ---
+            // --- LAYER 3: INCOMING LIQUID SURF (PRIMARY WAVE FOREGROUND) ---
             ctx.beginPath();
-            ctx.moveTo(0, CANVAS_HEIGHT);
-            for (let x = 0; x < CANVAS_WIDTH; x++) {
+            ctx.moveTo(0, canvasHeight);
+            for (let x = 0; x < canvasWidth; x++) {
                 const y = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
                 ctx.lineTo(x, y);
             }
-            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.lineTo(canvasWidth, canvasHeight);
             ctx.closePath();
-            ctx.fillStyle = "rgba(58, 131, 204, 0.35)"; 
+            ctx.fillStyle = "rgba(58, 131, 204, 0.32)"; 
             ctx.fill();
 
             requestAnimationFrame(renderShoreline);
