@@ -328,7 +328,7 @@
             </div>
             <div class="side-block">
                 <h3>Status</h3>
-                <p>Independent <br>Est. 2025 &bull; Global Distributed Group</p>
+                <p>Independent laboratory<br>Est. 2025 &bull; Global Distributed Group</p>
             </div>
         </aside>
     </header>
@@ -382,21 +382,12 @@
         let canvasWidth = window.innerWidth;
         const canvasHeight = 240;
         
-        let wetPathY = [];
-        let hasPathSnapshot = false;
-
-        function resetWetPath() {
-            wetPathY = new Array(Math.ceil(window.innerWidth)).fill(null);
-            hasPathSnapshot = false;
-        }
-
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
             canvasWidth = window.innerWidth;
             canvas.width = canvasWidth * dpr;
             canvas.height = canvasHeight * dpr;
             ctx.scale(dpr, dpr);
-            resetWetPath();
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -407,25 +398,28 @@
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   // 4 Seconds dry timeline
+        const DRY_DURATION = 4000;   
+
+        // Precise variables to lock Point A where the scroll began
+        let scrollStartPos = 0;
+        let scrollStartWaveOffset = 0;
+        let scrollDeltaRecorded = 0;
         let scrollTimeout;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
             if (currentScrollY > lastScrollY) {
-                const delta = currentScrollY - lastScrollY;
-                isScrollingDown = true;
-                stopTime = 0; 
-
-                // Shift the old path UPWARD by the amount scrolled to anchor it to Point A on the text layout
-                if (hasPathSnapshot) {
-                    for (let x = 0; x < canvasWidth; x++) {
-                        if (wetPathY[x] !== null) {
-                            wetPathY[x] -= delta;
-                        }
-                    }
+                // If this is the start of a new downward scroll interaction, lock Point A parameters
+                if (!isScrollingDown) {
+                    isScrollingDown = true;
+                    scrollStartPos = lastScrollY;
+                    scrollStartWaveOffset = waveOffsetFront;
+                    stopTime = 0;
                 }
+
+                // Compute exact, clean pixel distance separating Point A from current position
+                scrollDeltaRecorded = currentScrollY - scrollStartPos;
 
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
@@ -433,7 +427,7 @@
                         isScrollingDown = false;
                         stopTime = performance.now();
                     }
-                }, 50);
+                }, 100);
             }
             lastScrollY = currentScrollY;
         });
@@ -451,6 +445,7 @@
         function renderShoreline(timestamp) {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
+            // Time step incrementors for fluid motion
             waveOffsetFront += 0.018;
             waveOffsetBack += 0.009;
 
@@ -466,40 +461,34 @@
                 } else {
                     currentAlpha = 0;
                     stopTime = 0;
-                    resetWetPath();
+                    scrollDeltaRecorded = 0;
                 }
             }
 
-            // Calculate active frontend wave coordinates
+            // Calculate active live wave coordinates (Point B)
             let currentWaveY = [];
             for (let x = 0; x < canvasWidth; x++) {
                 const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // Capture initial baseline wave path snapshot instantly on scroll down start
-            if (isScrollingDown) {
-                if (!hasPathSnapshot) {
-                    for (let x = 0; x < canvasWidth; x++) {
-                        wetPathY[x] = currentWaveY[x];
-                    }
-                    hasPathSnapshot = true;
-                }
-            }
-
-            // --- LAYER 1: FIXED TEXT-ANCHORED DAMP MASK LAYER ---
-            if (currentAlpha > 0.001 && hasPathSnapshot) {
+            // --- LAYER 1: MATHEMATICALLY LOCKED CLEAN DAMP MEMORY ---
+            // Only draw if we have meaningful downward movement history
+            if (currentAlpha > 0.001 && scrollDeltaRecorded > 2) {
                 ctx.save();
                 ctx.filter = 'blur(6px)'; 
                 ctx.beginPath();
                 
-                // Track the trail line shape left behind at Point A
-                ctx.moveTo(0, wetPathY[0]);
-                for (let x = 1; x < canvasWidth; x++) {
-                    ctx.lineTo(x, wetPathY[x]);
+                // Track forward along Point A (The wave shape calculated exactly where the scroll started, shifted up cleanly)
+                for (let x = 0; x < canvasWidth; x++) {
+                    const historicWaveShape = Math.sin(x * 0.006 + scrollStartWaveOffset) * 12;
+                    const pointAY = baselineY + historicWaveShape - scrollDeltaRecorded;
+                    
+                    if (x === 0) ctx.moveTo(x, pointAY);
+                    else ctx.lineTo(x, pointAY);
                 }
 
-                // Close down seamlessly right against Point B (moving water wave form)
+                // Trace backward along Point B (The actual active running wave line)
                 for (let x = canvasWidth - 1; x >= 0; x--) {
                     ctx.lineTo(x, currentWaveY[x]);
                 }
