@@ -199,7 +199,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
             margin-top: 40px;
         }
@@ -220,14 +220,31 @@
 
         .card h3 {
             font-family: "Inter", sans-serif;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
+        }
+
+        .card .title-tag {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-light);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .card-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .card a.contact-link {
-            display: inline-block;
-            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            align-self: flex-start;
             font-weight: 500;
             font-size: 0.95rem;
             border-bottom: 1px solid var(--text-main);
@@ -361,22 +378,17 @@
     <hr class="section-divider">
 
     <section id="contact-channels">
-        <h2>Communication Channels</h2>
+        <h2>Primary Contact</h2>
         <div class="grid">
             <div class="card" tabindex="0">
-                <h3>General Inquiries</h3>
-                <p>For administrative operations, general group information, organizational updates, or miscellaneous open questions.</p>
-                <a href="mailto:info@ergodic.xyz" class="contact-link">info@ergodic.xyz</a>
-            </div>
-            <div class="card" tabindex="0">
-                <h3>Research Partnerships</h3>
-                <p>For research labs, institutional grant entities, or prospective academic affiliates looking to coordinate shared papers.</p>
-                <a href="mailto:research@ergodic.xyz" class="contact-link">research@ergodic.xyz</a>
-            </div>
-            <div class="card" tabindex="0">
-                <h3>Software &amp; Frameworks</h3>
-                <p>Bug tracking submissions, critical production issues, structural integration support, or specialized technical requests.</p>
-                <a href="mailto:dev@ergodic.xyz" class="contact-link">dev@ergodic.xyz</a>
+                <h3>Nayan Naleyanda</h3>
+                <div class="title-tag">Lead Researcher</div>
+                <p>For research communications, administrative operations, organizational updates, partnerships, and technical data verification requests.</p>
+                
+                <div class="card-links">
+                    <a href="mailto:atomicnayan@gmail.com" class="contact-link">atomicnayan@gmail.com</a>
+                    <a href="https://www.linkedin.com/in/nayan-naleyanda-582b48363/" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn Profile</a>
+                </div>
             </div>
         </div>
     </section>
@@ -386,7 +398,7 @@
     <div class="footer-inner">
         <div class="footer-left">
             <strong>Ergodic Research Group</strong>
-            <span>Independent Research &bull; 2025</span>
+            <span>Independent Research &bull; 2026</span>
         </div>
         <div class="footer-right">
             &copy; 2026 ERG. All rights reserved.
@@ -440,7 +452,6 @@
 
         let ghostAlpha = 0;
 
-        // Tracks positions cleanly using the highly accurate Top boundary system
         let scrollStartTopY = 0;
         let scrollStartWaveOffset = 0;
         let hasAnchor = false;
@@ -454,7 +465,6 @@
                     stopTime = 0;
                     ghostAlpha = 0.18;
                     
-                    // Correctly anchor the top of the viewport when scroll starts
                     if (!hasAnchor) {
                         scrollStartTopY = lastScrollY;
                         scrollStartWaveOffset = waveOffsetFront;
@@ -494,14 +504,12 @@
                 }
             }
 
-            // Foreground runtime wave coordinates
             let currentWaveY = [];
             for (let x = 0; x < viewWidth; x++) {
                 const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // --- RECTIFIED TOP-ANCHORED UNIFIED GEOMETRY (NO BANDING) ---
             if (hasAnchor && ghostAlpha > 0) {
                 gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
 
@@ -510,7 +518,6 @@
                 gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
                 gCtx.beginPath();
                 
-                // 1. Plot the initial wave shape where the interaction started
                 const startPlacementY = scrollStartTopY + window.innerHeight - viewHeight;
                 const initialY0 = startPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
                 gCtx.moveTo(0, initialY0);
@@ -520,7 +527,6 @@
                     gCtx.lineTo(x, initialY);
                 }
 
-                // 2. Seamlessly close the dynamic polygon using the live front wave coordinates
                 const livePlacementY = window.scrollY + window.innerHeight - viewHeight;
                 for (let x = viewWidth - 1; x >= 0; x--) {
                     const liveY = livePlacementY + currentWaveY[x];
@@ -534,7 +540,6 @@
                 gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
             }
 
-            // --- BASEWATER BACKGROUND ACCENT ---
             sCtx.beginPath();
             sCtx.moveTo(0, viewHeight);
             for (let x = 0; x < viewWidth; x++) {
@@ -546,7 +551,6 @@
             sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
             sCtx.fill();
 
-            // --- FOREGROUND SURFACE WATER ---
             sCtx.beginPath();
             sCtx.moveTo(0, viewHeight);
             for (let x = 0; x < viewWidth; x++) {
