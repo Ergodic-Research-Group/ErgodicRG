@@ -27,7 +27,7 @@
             scroll-behavior: smooth;
         }
 
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -160,6 +160,8 @@
             align-items: center;
             justify-content: center;
             padding: 60px 30px;
+            position: relative;
+            z-index: 5;
         }
 
         .error-container {
@@ -226,8 +228,10 @@
         footer {
             border-top: 1px solid var(--border-color);
             padding: 60px 30px;
-            background-color: rgba(0, 0, 0, 0.01);
+            background-color: transparent;
             width: 100%;
+            position: relative;
+            z-index: 5;
         }
 
         .footer-inner {
@@ -268,6 +272,37 @@
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* --- STABLE CANVAS LAYERS --- */
+        .ghost-canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        #ghostCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .shoreline-canvas-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 240px; 
+            z-index: 10;
+            pointer-events: none;
+        }
+        #shorelineCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         /* --- RESPONSIVE ADAPTATIONS --- */
@@ -356,21 +391,183 @@
     </div>
 </footer>
 
+<!-- Background Structural Canvases -->
+<div class="ghost-canvas-container">
+    <canvas id="ghostCanvas"></canvas>
+</div>
+
+<div class="shoreline-canvas-container">
+    <canvas id="shorelineCanvas"></canvas>
+</div>
+
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // --- SCROLL REVEAL MANAGEMENT ---
         const revealElements = document.querySelectorAll(".reveal");
         const revealOnScroll = () => {
             revealElements.forEach(el => {
                 const elementTop = el.getBoundingClientRect().top;
-                // Triggers immediately if the element is visible on load
                 if (elementTop < window.innerHeight - 20) {
                     el.classList.add("active");
                 }
             });
         };
         window.addEventListener("scroll", revealOnScroll);
-        // Force evaluation right away on initial load execution
         revealOnScroll();
+
+        // --- FLUID WAVE ENGINE CORE ---
+        const sCanvas = document.getElementById("shorelineCanvas");
+        const sCtx = sCanvas.getContext("2d");
+
+        const gCanvas = document.getElementById("ghostCanvas");
+        const gCtx = gCanvas.getContext("2d");
+
+        let viewWidth = window.innerWidth;
+        const viewHeight = 240;
+        
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            viewWidth = window.innerWidth;
+            
+            sCanvas.width = viewWidth * dpr;
+            sCanvas.height = viewHeight * dpr;
+            sCtx.scale(dpr, dpr);
+
+            gCanvas.width = viewWidth * dpr;
+            gCanvas.height = document.documentElement.scrollHeight * dpr;
+            gCtx.scale(dpr, dpr);
+        }
+        
+        window.addEventListener('load', resizeCanvases);
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        const baselineY = 185;       
+        let lastScrollY = window.scrollY;
+        let isScrollingDown = false;
+        
+        let stopTime = 0;            
+        const DRY_DURATION = 4000;   
+        let scrollTimeout;
+
+        let ghostAlpha = 0;
+
+        let scrollStartTopY = 0;
+        let scrollStartWaveOffset = 0;
+        let hasAnchor = false;
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            if (currentScrollY > lastScrollY) {
+                if (!isScrollingDown) {
+                    isScrollingDown = true;
+                    stopTime = 0;
+                    ghostAlpha = 0.18;
+                    
+                    if (!hasAnchor) {
+                        scrollStartTopY = lastScrollY;
+                        scrollStartWaveOffset = waveOffsetFront;
+                        hasAnchor = true;
+                    }
+                }
+
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    if (isScrollingDown) {
+                        isScrollingDown = false;
+                        stopTime = performance.now(); 
+                    }
+                }, 120); 
+            }
+            lastScrollY = currentScrollY;
+        });
+
+        let waveOffsetFront = 0;
+        let waveOffsetBack = 0;
+
+        function renderLoop(timestamp) {
+            sCtx.clearRect(0, 0, viewWidth, viewHeight);
+
+            waveOffsetFront += 0.018;
+            waveOffsetBack += 0.009;
+
+            if (!isScrollingDown && stopTime > 0) {
+                const elapsed = timestamp - stopTime;
+                if (elapsed < DRY_DURATION) {
+                    const progress = elapsed / DRY_DURATION;
+                    ghostAlpha = 0.18 * (1 - progress);
+                } else {
+                    ghostAlpha = 0;
+                    stopTime = 0;
+                    hasAnchor = false; 
+                }
+            }
+
+            let currentWaveY = [];
+            for (let x = 0; x < viewWidth; x++) {
+                const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
+                currentWaveY[x] = baselineY + waveShape;
+            }
+
+            // Top-Anchored Unified Geometry Processing
+            if (hasAnchor && ghostAlpha > 0) {
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
+
+                gCtx.save();
+                gCtx.filter = 'blur(6px)';
+                gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
+                gCtx.beginPath();
+                
+                const startPlacementY = scrollStartTopY + window.innerHeight - viewHeight;
+                const initialY0 = startPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
+                gCtx.moveTo(0, initialY0);
+                
+                for (let x = 1; x < viewWidth; x++) {
+                    const initialY = startPlacementY + baselineY + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12;
+                    gCtx.lineTo(x, initialY);
+                }
+
+                const livePlacementY = window.scrollY + window.innerHeight - viewHeight;
+                for (let x = viewWidth - 1; x >= 0; x--) {
+                    const liveY = livePlacementY + currentWaveY[x];
+                    gCtx.lineTo(x, liveY);
+                }
+
+                gCtx.closePath();
+                gCtx.fill(); 
+                gCtx.restore();
+            } else if (ghostAlpha === 0 && !isScrollingDown) {
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
+            }
+
+            // Background accent wave layer
+            sCtx.beginPath();
+            sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) {
+                const y = baselineY - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14;
+                sCtx.lineTo(x, y);
+            }
+            sCtx.lineTo(viewWidth, viewHeight);
+            sCtx.closePath();
+            sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
+            sCtx.fill();
+
+            // Foreground fluid surface layer
+            sCtx.beginPath();
+            sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) {
+                sCtx.lineTo(x, currentWaveY[x]);
+            }
+            sCtx.lineTo(viewWidth, viewHeight);
+            sCtx.closePath();
+            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
+            sCtx.fill();
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        requestAnimationFrame(renderLoop);
     });
 </script>
 </body>
