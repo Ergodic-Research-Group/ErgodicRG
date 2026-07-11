@@ -4,49 +4,34 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/jpeg" href="logo.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Under Construction — Ergodic Research Group (ERG)</title>
+    <title>Publications Under Construction — Ergodic Research Group</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- GLOBAL SETUP & TYPOGRAPHY --- */
         :root {
-            --bg-color: #f6f2e9;        /* Warm institutional cream */
-            --text-main: #1c1c1c;       /* Off-black for high readability */
-            --text-muted: #555555;      /* Secondary descriptive text */
-            --text-light: #767676;      /* Meta captions & structure tags */
-            --border-color: #e5dfd3;    /* Soft tone-matched layout lines */
-            --card-bg: #faf7f2;         /* Slightly lifted background for cards */
+            --bg-color: #f6f2e9;
+            --text-main: #1c1c1c;
+            --text-muted: #555555;
+            --text-light: #767676;
+            --border-color: #e5dfd3;
             --accent-hover: #000000;
-            --construction-amber: #d97706; /* Refined, muted industrial amber */
+            --construction-amber: #d97706;
         }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        html { scroll-behavior: smooth; }
+        *{ margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-main);
             background-color: var(--bg-color);
             line-height: 1.7;
             -webkit-font-smoothing: antialiased;
-            position: relative;
-            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
-
-        /* Subtle procedural noise texture simulation */
         body::before {
             content: "";
             position: fixed;
@@ -56,14 +41,6 @@
             z-index: 9999;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        /* --- NAVIGATION HEADER --- */
         header.site-header {
             position: sticky;
             top: 0;
@@ -73,7 +50,6 @@
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
         }
-
         nav {
             max-width: 1150px;
             margin: auto;
@@ -83,294 +59,98 @@
             align-items: center;
             width: 100%;
         }
-
-        /* --- BRAND LOGO ASSEMBLY --- */
-        .brand-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-logo {
-            height: 28px;
-            width: auto;
-            display: block;
-            border-radius: 4px;
-            mix-blend-mode: multiply; 
-        }
-
-        .brand {
-            font-family: "Inter", sans-serif;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            font-size: 1.05rem;
-            line-height: 1;
-        }
-        
-        .brand-sub {
-            font-weight: 400;
-            color: var(--text-light);
-            margin-left: 6px;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 32px;
-            font-size: 0.92rem;
-            font-weight: 500;
-        }
-
-        nav ul li a {
-            color: var(--text-muted);
-            position: relative;
-            padding: 4px 0;
-        }
-
-        nav ul li a:hover, nav ul li a:focus {
-            color: var(--accent-hover);
-        }
-        
-        nav ul li a.active {
-            color: var(--text-main);
-        }
-        
+        .brand-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-logo { height: 28px; width: auto; border-radius: 4px; mix-blend-mode: multiply; }
+        .brand { font-weight: 600; letter-spacing: -0.02em; font-size: 1.05rem; }
+        .brand-sub { font-weight: 400; color: var(--text-light); margin-left: 6px; }
+        nav ul { display: flex; list-style: none; gap: 32px; font-size: 0.92rem; font-weight: 500; }
+        nav ul li a { color: var(--text-muted); position: relative; padding: 4px 0; text-decoration: none; }
+        nav ul li a:hover, nav ul li a:focus { color: var(--accent-hover); }
+        nav ul li a.active { color: var(--text-main); }
         nav ul li a::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            transform: scaleX(0);
-            height: 1px;
-            bottom: 0;
-            left: 0;
-            background-color: var(--text-main);
-            transform-origin: bottom right;
+            content: ''; position: absolute; width: 100%; transform: scaleX(0); height: 1px;
+            bottom: 0; left: 0; background-color: var(--text-main); transform-origin: bottom right;
             transition: transform 0.25s ease-out;
         }
-        
-        nav ul li a:hover::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
-
-        /* --- CONSTRUCTION ERROR STATE MAIN BOX --- */
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 30px;
-        }
-
-        .error-container {
-            max-width: 540px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Rounded, Minimal Vector Graphic Matching the Palette Style */
+        nav ul li a:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 30px; }
+        .error-container { max-width: 540px; text-align: center; display: flex; flex-direction: column; align-items: center; }
         .construction-vector {
-            width: 84px;
-            height: 84px;
-            margin-bottom: 30px;
-            color: var(--construction-amber);
-            background-color: rgba(217, 119, 6, 0.06);
-            padding: 16px;
-            border-radius: 20px;
+            width: 84px; height: 84px; margin-bottom: 30px; color: var(--construction-amber);
+            background-color: rgba(217, 119, 6, 0.06); padding: 16px; border-radius: 20px;
             border: 1px dashed rgba(217, 119, 6, 0.2);
         }
-
-        .error-tag {
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: var(--construction-amber);
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            font-family: "IBM Plex Serif", Georgia, serif;
-            font-size: 2.2rem;
-            font-weight: 400;
-            line-height: 1.3;
-            letter-spacing: -0.01em;
-            margin-bottom: 16px;
-            color: var(--text-main);
-        }
-
-        .error-description {
-            color: var(--text-muted);
-            font-size: 1.02rem;
-            line-height: 1.7;
-            margin-bottom: 35px;
-        }
-
-        /* Minimal action boundary link */
-        .return-btn {
-            font-size: 0.92rem;
-            font-weight: 500;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--text-main);
-            padding-bottom: 2px;
-            transition: opacity 0.2s ease;
-        }
-
-        .return-btn:hover {
-            opacity: 0.6;
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            border-top: 1px solid var(--border-color);
-            padding: 60px 30px;
-            background-color: rgba(0, 0, 0, 0.01);
-            width: 100%;
-        }
-
-        .footer-inner {
-            max-width: 1090px;
-            margin: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 40px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        .footer-brand strong {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-        
-        .footer-links a {
-            color: var(--text-muted);
-            border-bottom: 1px solid transparent;
-        }
-        
-        .footer-links a:hover {
-            color: var(--text-main);
-            border-bottom: 1px solid var(--text-main);
-        }
-
-        /* --- SCROLL ANIMATION --- */
-        .reveal {
-            opacity: 0;
-            transform: translateY(15px);
-            transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), 
-                        transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- RESPONSIVE ADAPTATIONS --- */
+        .error-tag { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--construction-amber); font-weight: 700; margin-bottom: 12px; }
+        h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 2.2rem; font-weight: 400; line-height: 1.3; letter-spacing: -0.01em; margin-bottom: 16px; color: var(--text-main); }
+        .error-description { color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; margin-bottom: 35px; }
+        .return-btn { font-size: 0.92rem; font-weight: 500; color: var(--text-main); border-bottom: 1px solid var(--text-main); padding-bottom: 2px; text-decoration: none; transition: opacity 0.2s ease; }
+        .return-btn:hover { opacity: 0.6; }
+        footer { border-top: 1px solid var(--border-color); padding: 60px 30px; background-color: rgba(0, 0, 0, 0.01); width: 100%; }
+        .footer-inner { max-width: 1090px; margin: auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px; color: var(--text-light); font-size: 0.9rem; }
+        .footer-brand strong { color: var(--text-main); font-weight: 600; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; border-bottom: 1px solid transparent; }
+        .footer-links a:hover { color: var(--text-main); border-bottom: 1px solid var(--text-main); }
+        .reveal { opacity: 0; transform: translateY(15px); transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
         @media (max-width: 680px) {
-            nav {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px;
-            }
-            
-            nav ul {
-                gap: 20px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .error-description {
-                font-size: 0.95rem;
-            }
-            
-            .footer-inner {
-                flex-direction: column;
-                gap: 20px;
-            }
+            nav { flex-direction: column; gap: 20px; padding: 20px; }
+            nav ul { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            h1 { font-size: 1.8rem; }
+            .footer-inner { flex-direction: column; gap: 20px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Navigation Header -->
 <header class="site-header">
     <nav aria-label="Main Navigation">
-        <a href="index.html" class="brand-container" aria-label="Ergodic Research Group Home">
-            <img src="logo.jpg" alt="Ergodic Research Group Logo" class="brand-logo">
-            <div class="brand">
-                Ergodic Research Group<span class="brand-sub">ERG</span>
-            </div>
+        <a href="index.html" class="brand-container">
+            <img src="logo.jpg" alt="ERG Logo" class="brand-logo">
+            <div class="brand">Ergodic Research Group<span class="brand-sub">ERG</span></div>
         </a>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="research.html" class="active">Research</a></li>
+            <li><a href="research.html">Research</a></li>
             <li><a href="software.html">Software</a></li>
-            <li><a href="publications.html">Publications</a></li>
+            <li><a href="publications.html" class="active">Publications</a></li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
 </header>
 
-<!-- Central Structural Area -->
 <main>
     <div class="error-container reveal">
-        <!-- Rounded Open-Source Vector Barrier (Industrial / Construction Tone) -->
         <svg class="construction-vector" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18" />
             <path d="M10 22v-4a2 2 0 0 1 4 0v4" />
             <path d="m3 7 18 3" />
             <path d="m3 12 18 3" />
         </svg>
-
-        <div class="error-tag">Status 403 &bull; Block Active</div>
-        <h1>We are working on this module.</h1>
+        <div class="error-tag">Status 403 &bull; Index Update</div>
+        <h1>Publications index under review.</h1>
         <p class="error-description">
-            This workspace section is currently under structural maintenance. The associated algorithmic datasets, software tools, and documentation are being integrated by the research engineering team.
+            Our manuscript indexes, preprints, and academic journal literature citations are currently undergoing volume re-cataloging. 
         </p>
         <a href="index.html" class="return-btn">Return to Primary Index</a>
     </div>
 </main>
 
-<!-- Footer -->
 <footer>
     <div class="footer-inner">
         <div class="footer-brand">
-            <strong>Ergodic Research Group</strong><br>
-            Independent Research Initiative &bull; 2026
+            <strong>Ergodic Research Group</strong><br> Independent Research Initiative &bull; 2026
         </div>
         <div class="footer-links">
             <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
         </div>
-        <div>
-            &copy; 2026 ERG. All rights reserved. 
-        </div>
+        <div> &copy; 2026 ERG. All rights reserved. </div>
     </div>
 </footer>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const revealElements = document.querySelectorAll(".reveal");
-        const revealOnScroll = () => {
-            revealElements.forEach(el => {
-                const elementTop = el.getBoundingClientRect().top;
-                // Triggers immediately if the element is visible on load
-                if (elementTop < window.innerHeight - 20) {
-                    el.classList.add("active");
-                }
-            });
-        };
-        window.addEventListener("scroll", revealOnScroll);
-        // Force evaluation right away on initial load execution
-        revealOnScroll();
+        revealElements.forEach(el => el.classList.add("active"));
     });
 </script>
 </body>
