@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/jpeg" href="logo.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact — Ergodic Research Group (ERG)</title>
+    <title>Contact &bull; Ergodic Research Group (ERG)</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,12 +13,12 @@
     <style>
         /* --- GLOBAL SETUP & TYPOGRAPHY --- */
         :root {
-            --bg-color: #f6f2e9;        /* Warm institutional cream */
-            --text-main: #1c1c1c;       /* Off-black for high readability */
-            --text-muted: #555555;      /* Secondary descriptive text */
-            --text-light: #767676;      /* Meta captions & structure tags */
-            --border-color: #e5dfd3;    /* Soft tone-matched layout lines */
-            --card-bg: #faf7f2;         /* Slightly lifted background for cards */
+            --bg-color: #f6f2e9;        
+            --text-main: #1c1c1c;       
+            --text-muted: #555555;      
+            --text-light: #767676;      
+            --border-color: #e5dfd3;    
+            --card-bg: #faf7f2;         
             --accent-hover: #000000;
         }
 
@@ -26,7 +26,7 @@
             scroll-behavior: smooth;
         }
 
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -42,7 +42,6 @@
             overflow-x: hidden;
         }
 
-        /* Subtle procedural noise texture simulation */
         body::before {
             content: "";
             position: fixed;
@@ -56,10 +55,9 @@
         a {
             color: inherit;
             text-decoration: none;
-            transition: color 0.2s ease, border-color 0.2s ease;
+            transition: color 0.2s ease;
         }
 
-        /* --- NAVIGATION HEADER --- */
         header.site-header {
             position: sticky;
             top: 0;
@@ -79,7 +77,6 @@
             align-items: center;
         }
 
-        /* --- BRAND LOGO ASSEMBLY --- */
         .brand-container {
             display: flex;
             align-items: center;
@@ -129,430 +126,442 @@
         nav ul li a.active {
             color: var(--text-main);
         }
-        
-        nav ul li a::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            transform: scaleX(0);
-            height: 1px;
-            bottom: 0;
-            left: 0;
-            background-color: var(--text-main);
-            transform-origin: bottom right;
-            transition: transform 0.25s ease-out;
-        }
-        
-        nav ul li a:hover::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
 
-        /* --- CONTACT CONTENT LAYOUT --- */
-        .contact-layout {
+        .hero {
             max-width: 1150px;
-            margin: 80px auto 120px auto;
+            margin: 90px auto 70px auto;
             padding: 0 30px;
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: 2.2fr 1fr;
             gap: 90px;
         }
 
-        .contact-intro h1 {
+        h1 {
             font-family: "IBM Plex Serif", Georgia, serif;
-            font-size: 2.8rem;
+            font-size: 3.2rem;
             font-weight: 400;
+            line-height: 1.2;
             letter-spacing: -0.01em;
-            margin-bottom: 20px;
+            margin-bottom: 35px;
+            color: var(--text-main);
         }
 
-        .contact-intro p {
+        .hero p.mission-statement {
+            max-width: 720px;
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             line-height: 1.75;
         }
 
-        /* --- RESEARCH DIRECTORY CARD --- */
-        .directory-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 45px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015);
+        .side {
+            border-left: 1px solid var(--border-color);
+            padding-left: 45px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
         }
 
-        .meta-label {
-            font-size: 0.75rem;
+        .side-block h3 {
+            font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 0.12em;
             color: var(--text-light);
+            margin-bottom: 12px;
             font-weight: 600;
-            margin-bottom: 6px;
         }
 
-        .researcher-name {
+        .side-block p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+        }
+
+        section {
+            max-width: 1150px;
+            margin: auto;
+            padding: 80px 30px;
+        }
+        
+        .section-divider {
+            max-width: 1090px;
+            margin: 0 auto;
+            border: 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        h2 {
             font-family: "IBM Plex Serif", Georgia, serif;
             font-size: 1.8rem;
             font-weight: 400;
-            color: var(--text-main);
-            margin-bottom: 2px;
+            margin-bottom: 15px;
+            letter-spacing: -0.01em;
         }
 
-        .researcher-role {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-bottom: 35px;
-        }
-
-        .communication-channels {
-            display: flex;
-            flex-direction: column;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 30px;
+            margin-top: 40px;
         }
 
-        .channel-item {
-            display: flex;
-            flex-direction: column;
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .channel-link {
-            font-size: 1.05rem;
-            color: var(--text-main);
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(27, 25, 22, 0.04);
+        }
+
+        .card h3 {
+            font-family: "Inter", sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card a.contact-link {
+            display: inline-block;
+            margin-top: 15px;
             font-weight: 500;
-            align-self: flex-start;
-            border-bottom: 1px solid transparent;
-        }
-
-        .channel-link:hover {
-            color: var(--accent-hover);
+            font-size: 0.95rem;
             border-bottom: 1px solid var(--text-main);
+            padding-bottom: 2px;
         }
 
-        /* --- FOOTER --- */
+        .card a.contact-link:hover {
+            color: var(--text-light);
+            border-bottom-color: var(--text-light);
+        }
+
         footer {
+            margin-top: 140px;
             border-top: 1px solid var(--border-color);
-            padding: 60px 30px;
-            background-color: rgba(0, 0, 0, 0.01);
+            padding: 50px 0;
+            background-color: transparent;
         }
 
         .footer-inner {
-            max-width: 1090px;
+            max-width: 1150px;
             margin: auto;
+            padding: 0 30px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 40px;
+            align-items: center;
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
 
-        .footer-brand strong {
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-left strong {
             color: var(--text-main);
             font-weight: 600;
+            letter-spacing: -0.01em;
         }
         
-        .footer-links a {
+        .footer-left span {
             color: var(--text-muted);
-            border-bottom: 1px solid transparent;
-        }
-        
-        .footer-links a:hover {
-            color: var(--text-main);
-            border-bottom: 1px solid var(--text-main);
         }
 
-        /* --- ACCESSIBILITY FOCUS STATES --- */
-        a:focus-visible {
-            outline: 2px dashed var(--text-main);
-            outline-offset: 4px;
+        .footer-right {
+            text-align: right;
+            color: var(--text-light);
         }
 
-        /* --- SCROLL ANIMATION --- */
-        .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
-                        transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        /* --- STABLE CANVAS LAYERS --- */
+        .ghost-canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        #ghostCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
+        .shoreline-canvas-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 240px; 
+            z-index: 10;
+            pointer-events: none;
+        }
+        #shorelineCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
-        /* --- RESPONSIVE ADAPTATIONS --- */
-        @media (max-width: 920px) {
-            .contact-layout {
-                grid-template-columns: 1fr;
-                gap: 50px;
-                margin-top: 40px;
-            }
-
-            .directory-card {
-                padding: 35px;
-            }
+        @media (max-width: 960px) {
+            .hero { grid-template-columns: 1fr; gap: 50px; }
+            .side { border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 40px; }
         }
 
-        @media (max-width: 680px) {
-            nav {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px;
-            }
-            
-            nav ul {
-                gap: 20px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .contact-layout {
-                padding: 0 20px;
-            }
-
-            .contact-intro h1 {
-                font-size: 2.2rem;
-            }
+        @media (max-width: 640px) {
+            .footer-inner { flex-direction: column; align-items: flex-start; gap: 24px; }
+            .footer-right { text-align: left; }
         }
     </style>
 </head>
 <body>
 
-<!-- Sticky Navigation Header -->
 <header class="site-header">
     <nav aria-label="Main Navigation">
-        <a href="index.html" class="brand-container" aria-label="Ergodic Research Group Home">
+        <a href="index.html" class="brand-container">
             <img src="logo.jpg" alt="Ergodic Research Group Logo" class="brand-logo">
-            <div class="brand">
-                Ergodic Research Group<span class="brand-sub">ERG</span>
-            </div>
+            <div class="brand">Ergodic Research Group<span class="brand-sub">ERG</span></div>
         </a>
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="research.html">Research</a></li>
             <li><a href="software.html">Software</a></li>
             <li><a href="publications.html">Publications</a></li>
-            <li><a href="contact.html" class="active" aria-current="page">Contact</a></li>
+            <li><a href="contact.html" class="active">Contact</a></li>
         </ul>
     </nav>
 </header>
 
-<main>
-    <div class="contact-layout">
-        <!-- Explanatory Context column -->
-        <section class="contact-intro reveal">
-            <h1>Correspondence</h1>
-            <p>
-                We welcome inquiries regarding collaborative initiatives, peer reviews, technical implementation feedback, or open scientific datasets. Direct communications are triaged through our principal technical office.
+<main style="position: relative; z-index: 5;">
+    <header class="hero">
+        <div>
+            <h1>Connect with our group.</h1>
+            <p class="mission-statement">
+                We welcome inquiries regarding collaborative initiatives, academic research partnerships, scientific computing software development, and formal peer review distributions.
             </p>
-        </section>
-
-        <!-- Structured Academic Contact Directory -->
-        <section class="reveal">
-            <div class="directory-card">
-                <div class="meta-label">Principal Office</div>
-                <h2 class="researcher-name">Nayan Naleyanda</h2>
-                <div class="researcher-role">Lead Researcher</div>
-
-                <div class="communication-channels">
-                    <div class="channel-item">
-                        <span class="meta-label">email</span>
-                        <a href="mailto:atomicnayan@gmail.com" class="channel-link">atomicnayan@gmail.com</a>
-                    </div>
-
-                    <div class="channel-item">
-                        <span class="meta-label">ORCiD</span>
-                        <a href="https://orcid.org/0009-0007-4576-9736" class="channel-link" target="_blank" rel="noopener noreferrer">ORCID Registry &bull; 0009-0007-4576-9736</a>
-                    </div>
-
-                    <div class="channel-item">
-                        <span class="meta-label">Professional Networ</span>
-                        <a href="https://www.linkedin.com/in/nayan-naleyanda-582b48363/" class="channel-link" target="_blank" rel="noopener noreferrer">LinkedIn Profile</a>
-                    </div>
-                </div>
+        </div>
+        <aside class="side">
+            <div class="side-block">
+                <h3>Response Times</h3>
+                <p>General: 2-3 Business Days<br>Urgent Peer Review: High Priority<br>Cryptographic Audits: Scheduled</p>
             </div>
-        </section>
-    </div>
+            <div class="side-block">
+                <h3>Keys</h3>
+                <p>Public PGP keys for secure communication are available upon specialized administrative request.</p>
+            </div>
+        </aside>
+    </header>
+
+    <hr class="section-divider">
+
+    <section id="contact-channels">
+        <h2>Communication Channels</h2>
+        <div class="grid">
+            <div class="card" tabindex="0">
+                <h3>General Inquiries</h3>
+                <p>For administrative operations, general group information, organizational updates, or miscellaneous open questions.</p>
+                <a href="mailto:info@ergodic.xyz" class="contact-link">info@ergodic.xyz</a>
+            </div>
+            <div class="card" tabindex="0">
+                <h3>Research Partnerships</h3>
+                <p>For research labs, institutional grant entities, or prospective academic affiliates looking to coordinate shared papers.</p>
+                <a href="mailto:research@ergodic.xyz" class="contact-link">research@ergodic.xyz</a>
+            </div>
+            <div class="card" tabindex="0">
+                <h3>Software &amp; Frameworks</h3>
+                <p>Bug tracking submissions, critical production issues, structural integration support, or specialized technical requests.</p>
+                <a href="mailto:dev@ergodic.xyz" class="contact-link">dev@ergodic.xyz</a>
+            </div>
+        </div>
+    </section>
 </main>
 
-<!-- Academic Footer -->
 <footer>
     <div class="footer-inner">
-        <div class="footer-brand">
-            <strong>Ergodic Research Group</strong><br>
-            Independent Research Initiative &bull; 2026
+        <div class="footer-left">
+            <strong>Ergodic Research Group</strong>
+            <span>Independent Research &bull; 2025</span>
         </div>
-        <div class="footer-links">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
-        </div>
-        <div>
-            &copy; 2026 ERG. All rights reserved. 
+        <div class="footer-right">
+            &copy; 2026 ERG. All rights reserved.
         </div>
     </div>
 </footer>
 
-<!-- Lightweight Scroll Animation Script -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const revealElements = document.querySelectorAll(".reveal");
+<div class="ghost-canvas-container">
+    <canvas id="ghostCanvas"></canvas>
+</div>
 
-        const revealOnScroll = () => {
-            const buffer = 40;
-            revealElements.forEach(el => {
-                const elementTop = el.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (elementTop < windowHeight - buffer) {
-                    el.classList.add("active");
-                }
-            });
-        };
-
-        window.addEventListener("scroll", revealOnScroll);
-        window.addEventListener("resize", revealOnScroll);
-        revealOnScroll();
-    });
-<!-- Fluid Shoreline Simulation Canvas Element -->
 <div class="shoreline-canvas-container">
     <canvas id="shorelineCanvas"></canvas>
 </div>
 
-<style>
-    .shoreline-canvas-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 180px; /* Tall box for handling maximum wave crest boundaries */
-        z-index: 10;
-        pointer-events: none;
-    }
-    #shorelineCanvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-</style>
-
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const canvas = document.getElementById("shorelineCanvas");
-    const ctx = canvas.getContext("2d");
+    document.addEventListener("DOMContentLoaded", () => {
+        const sCanvas = document.getElementById("shorelineCanvas");
+        const sCtx = sCanvas.getContext("2d");
 
-    // Dynamic High-DPI Display Scaling Matrix
-    function resizeCanvas() {
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr);
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+        const gCanvas = document.getElementById("ghostCanvas");
+        const gCtx = gCanvas.getContext("2d");
 
-    // Simulation Constants & Environmental Properties
-    const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
-    const CANVAS_HEIGHT = 180;
-    
-    // Core Wave Positioning Constants
-    const baselineY = 40;       // Point A: The initial load-state rest position line
-    const maxRecedeDist = 110;  // How far the tide pulls back at maximum scroll depth
-    let scrollPercent = 0;
-    let targetWaterLine = baselineY;
-    let currentWaterLine = baselineY;
-
-    // Organic Sine Wave Mathematical Modifiers
-    let waveOffsetFront = 0;
-    let waveOffsetBack = 0;
-
-    // --- Damp Array Map: Tracks pixel-by-pixel shore saturation lines ---
-    // Every element maps to a column across the horizontal viewport
-    const dampProfile = new Array(Math.ceil(CANVAS_WIDTH)).fill(baselineY);
-
-    // Tracking scroll coordinates 
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        scrollPercent = maxScroll > 0 ? scrollTop / maxScroll : 0;
-    });
-
-    // Main Fluid Physics & Draw Execution Loop
-    function renderShoreline() {
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        // 1. Calculate the dynamic position of the receding tide
-        targetWaterLine = baselineY + (scrollPercent * maxRecedeDist);
-        // Smooth interpolation dampens jerky scroll transitions
-        currentWaterLine += (targetWaterLine - currentWaterLine) * 0.12;
-
-        // 2. Continuous Organic Wave Idle Motion
-        waveOffsetFront += 0.025;
-        waveOffsetBack += 0.015;
-
-        // --- PHASE I: RENDER BLURRED WET-SAND IMPRINT (POINT A TO TIDE) ---
-        ctx.save();
-        // Native canvas blur simulates real-world evaporation capillary edges
-        ctx.filter = 'blur(10px)'; 
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT);
-
-        for (let x = 0; x < CANVAS_WIDTH; x++) {
-            // Compute current shifting waterline at index X
-            const localWaveCrest = currentWaterLine + Math.sin(x * 0.006 + waveOffsetFront) * 6;
+        let viewWidth = window.innerWidth;
+        const viewHeight = 240;
+        
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            viewWidth = window.innerWidth;
             
-            // If the water moves past the damp tracker, push the damp profile out to match
-            if (localWaveCrest > dampProfile[x]) {
-                dampProfile[x] = localWaveCrest;
-            } else {
-                // EVAPORATION LOGIC: Slowly dry out and recede back to the current water line over time
-                dampProfile[x] -= 0.12; // Controls drying rate
-                if (dampProfile[x] < localWaveCrest) dampProfile[x] = localWaveCrest;
-            }
-            
-            ctx.lineTo(x, dampProfile[x]);
+            sCanvas.width = viewWidth * dpr;
+            sCanvas.height = viewHeight * dpr;
+            sCtx.scale(dpr, dpr);
+
+            gCanvas.width = viewWidth * dpr;
+            gCanvas.height = document.documentElement.scrollHeight * dpr;
+            gCtx.scale(dpr, dpr);
         }
         
-        ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.closePath();
-        // Rich, oceanic deep damp color signature
-        ctx.fillStyle = "rgba(24, 46, 74, 0.09)"; 
-        ctx.fill();
-        ctx.restore();
+        window.addEventListener('load', resizeCanvases);
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
-        // --- PHASE II: RENDER BACK WAVE LAYER (DEEP WATER SHADE) ---
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT);
-        for (let x = 0; x < CANVAS_WIDTH; x++) {
-            const y = currentWaterLine - 10 + Math.sin(x * 0.005 + waveOffsetBack) * 8 + Math.cos(x * 0.01 + waveOffsetFront) * 3;
-            ctx.lineTo(x, y);
+        const baselineY = 185;       
+        let lastScrollY = window.scrollY;
+        let isScrollingDown = false;
+        
+        let stopTime = 0;            
+        const DRY_DURATION = 4000;   
+        let scrollTimeout;
+
+        let ghostAlpha = 0;
+
+        // Tracks positions cleanly using the highly accurate Top boundary system
+        let scrollStartTopY = 0;
+        let scrollStartWaveOffset = 0;
+        let hasAnchor = false;
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            if (currentScrollY > lastScrollY) {
+                if (!isScrollingDown) {
+                    isScrollingDown = true;
+                    stopTime = 0;
+                    ghostAlpha = 0.18;
+                    
+                    // Correctly anchor the top of the viewport when scroll starts
+                    if (!hasAnchor) {
+                        scrollStartTopY = lastScrollY;
+                        scrollStartWaveOffset = waveOffsetFront;
+                        hasAnchor = true;
+                    }
+                }
+
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    if (isScrollingDown) {
+                        isScrollingDown = false;
+                        stopTime = performance.now(); 
+                    }
+                }, 120); 
+            }
+            lastScrollY = currentScrollY;
+        });
+
+        let waveOffsetFront = 0;
+        let waveOffsetBack = 0;
+
+        function renderLoop(timestamp) {
+            sCtx.clearRect(0, 0, viewWidth, viewHeight);
+
+            waveOffsetFront += 0.018;
+            waveOffsetBack += 0.009;
+
+            if (!isScrollingDown && stopTime > 0) {
+                const elapsed = timestamp - stopTime;
+                if (elapsed < DRY_DURATION) {
+                    const progress = elapsed / DRY_DURATION;
+                    ghostAlpha = 0.18 * (1 - progress);
+                } else {
+                    ghostAlpha = 0;
+                    stopTime = 0;
+                    hasAnchor = false; 
+                }
+            }
+
+            // Foreground runtime wave coordinates
+            let currentWaveY = [];
+            for (let x = 0; x < viewWidth; x++) {
+                const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
+                currentWaveY[x] = baselineY + waveShape;
+            }
+
+            // --- RECTIFIED TOP-ANCHORED UNIFIED GEOMETRY (NO BANDING) ---
+            if (hasAnchor && ghostAlpha > 0) {
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
+
+                gCtx.save();
+                gCtx.filter = 'blur(6px)';
+                gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
+                gCtx.beginPath();
+                
+                // 1. Plot the initial wave shape where the interaction started
+                const startPlacementY = scrollStartTopY + window.innerHeight - viewHeight;
+                const initialY0 = startPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
+                gCtx.moveTo(0, initialY0);
+                
+                for (let x = 1; x < viewWidth; x++) {
+                    const initialY = startPlacementY + baselineY + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12;
+                    gCtx.lineTo(x, initialY);
+                }
+
+                // 2. Seamlessly close the dynamic polygon using the live front wave coordinates
+                const livePlacementY = window.scrollY + window.innerHeight - viewHeight;
+                for (let x = viewWidth - 1; x >= 0; x--) {
+                    const liveY = livePlacementY + currentWaveY[x];
+                    gCtx.lineTo(x, liveY);
+                }
+
+                gCtx.closePath();
+                gCtx.fill(); 
+                gCtx.restore();
+            } else if (ghostAlpha === 0 && !isScrollingDown) {
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
+            }
+
+            // --- BASEWATER BACKGROUND ACCENT ---
+            sCtx.beginPath();
+            sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) {
+                const y = baselineY - 6 + Math.sin(x * 0.004 + waveOffsetBack) * 14;
+                sCtx.lineTo(x, y);
+            }
+            sCtx.lineTo(viewWidth, viewHeight);
+            sCtx.closePath();
+            sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
+            sCtx.fill();
+
+            // --- FOREGROUND SURFACE WATER ---
+            sCtx.beginPath();
+            sCtx.moveTo(0, viewHeight);
+            for (let x = 0; x < viewWidth; x++) {
+                sCtx.lineTo(x, currentWaveY[x]);
+            }
+            sCtx.lineTo(viewWidth, viewHeight);
+            sCtx.closePath();
+            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; 
+            sCtx.fill();
+
+            requestAnimationFrame(renderLoop);
         }
-        ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(41, 102, 163, 0.22)"; // Semi-opaque deep ocean blue
-        ctx.fill();
 
-        // --- PHASE III: RENDER FRONT MAIN WAVE LAYER (PRIMARY BLUE WATER) ---
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT);
-        for (let x = 0; x < CANVAS_WIDTH; x++) {
-            const y = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 7;
-            ctx.lineTo(x, y);
-        }
-        ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(58, 131, 204, 0.45)"; // Soft coastal blue hue
-        ctx.fill();
-
-        // Request next frame execution loop
-        requestAnimationFrame(renderShoreline);
-    }
-
-    // Initialize Simulation Loop
-    renderShoreline();
-});
+        requestAnimationFrame(renderLoop);
+    });
 </script>
 </body>
 </html>
