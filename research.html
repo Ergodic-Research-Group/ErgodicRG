@@ -10,16 +10,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- GLOBAL SETUP & TYPOGRAPHY --- */
+
         :root {
-            --bg-color: #f6f2e9;        /* Warm institutional cream */
-            --text-main: #1c1c1c;       /* Off-black for high readability */
-            --text-muted: #555555;      /* Secondary descriptive text */
-            --text-light: #767676;      /* Meta captions & structure tags */
-            --border-color: #e5dfd3;    /* Soft tone-matched layout lines */
-            --card-bg: #faf7f2;         /* Slightly lifted background for cards */
+            --bg-color: #f6f2e9;   
+            --text-main: #1c1c1c;   
+            --text-muted: #555555;    
+            --text-light: #767676;    
+            --border-color: #e5dfd3;  
+            --card-bg: #faf7f2;       
             --accent-hover: #000000;
-            --tag-bg: #eae3d5;          /* Matched tone for tags */
+            --tag-bg: #eae3d5;          
         }
 
         html {
@@ -42,7 +42,7 @@
             overflow-x: hidden;
         }
 
-        /* Subtle procedural noise texture simulation */
+
         body::before {
             content: "";
             position: fixed;
@@ -59,7 +59,7 @@
             transition: color 0.2s ease;
         }
 
-        /* --- NAVIGATION HEADER --- */
+
         header.site-header {
             position: sticky;
             top: 0;
@@ -132,7 +132,7 @@
             transform-origin: bottom left;
         }
 
-        /* --- RESEARCH HEADER --- */
+
         .page-header {
             max-width: 1150px;
             margin: 80px auto 40px auto;
@@ -153,7 +153,7 @@
             max-width: 700px;
         }
 
-        /* --- EXPANDED PROJECT LAYOUT --- */
+
         .projects-container {
             max-width: 1150px;
             margin: 0 auto 100px auto;
@@ -210,7 +210,7 @@
             max-width: 900px;
         }
 
-        /* --- CIRCULAR ACADEMIC TAGS --- */
+
         .tag-container {
             display: flex;
             flex-wrap: wrap;
@@ -223,20 +223,20 @@
             color: var(--text-muted);
             background-color: var(--tag-bg);
             padding: 6px 16px;
-            border-radius: 20px; /* Clean circular pill tag shape */
+            border-radius: 20px;
             border: 1px solid transparent;
             transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             cursor: default;
         }
 
-        /* Ambient illumination on tag hover using cream values */
+
         .tag:hover {
             background-color: #fcfbfa; 
             color: var(--text-main);
             border-color: #dcd4c3;
         }
 
-        /* --- FOOTER --- */
+
         footer {
             border-top: 1px solid var(--border-color);
             padding: 60px 30px;
@@ -270,7 +270,7 @@
             border-bottom: 1px solid var(--text-main);
         }
 
-        /* --- SCROLL ANIMATIONS --- */
+
         .reveal {
             opacity: 0;
             transform: translateY(20px);
@@ -283,7 +283,7 @@
             transform: translateY(0);
         }
 
-        /* --- RESPONSIVE ADAPTATIONS --- */
+
         @media (max-width: 680px) {
             nav {
                 flex-direction: column;
@@ -323,7 +323,7 @@
 </head>
 <body>
 
-<!-- Sticky Navigation Header -->
+
 <header class="site-header">
     <nav aria-label="Main Navigation">
         <div class="brand">
@@ -340,16 +340,15 @@
 </header>
 
 <main>
-    <!-- Section Introduction -->
+
     <header class="page-header reveal">
         <h1>Active Research</h1>
         <p class="page-subtitle">Long-term core initiatives and interdisciplinary technical tracks underway at the group.</p>
     </header>
 
-    <!-- Expanded Projects Listing -->
+
     <div class="projects-container">
-        
-        <!-- Project 1: ARCUS-X -->
+
         <article class="project-card reveal" tabindex="0">
             <div class="project-titles">
                 <h2 class="project-main-title">ARCUS-X</h2>
@@ -359,13 +358,13 @@
                 ARCUS-X is a novel benchmark that evaluates how reliably large language models maintain state and execute sequential transformations over extended reasoning horizons.
             </p>
             <div class="tag-container" aria-label="Project classifications">
-                <span class="tag">cs.LG</span>
-                <span class="tag">cs.AI</span>
-                <span class="tag">cs.CL</span>
+                <a href="https://arxiv.org/list/cs.LG/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.LG</a>
+                <a href="https://arxiv.org/list/cs.AI/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.AI</a>
+                <a href="https://arxiv.org/list/cs.CL/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.CL</a>
             </div>
         </article>
 
-        <!-- Project 2: OptiTRNG -->
+    
         <article class="project-card reveal" tabindex="0">
             <div class="project-titles">
                 <h2 class="project-main-title">OptiTRNG</h2>
@@ -375,16 +374,16 @@
                 This project investigates micro-scale biological kinematics to generate cryptographically secure true entropy, processing live-captured optical tracking metrics into robust non-deterministic bitstreams.
             </p>
             <div class="tag-container" aria-label="Project classifications">
-                <span class="tag">cs.CR</span>
-                <span class="tag">cs.CV</span>
-                <span class="tag">physics.bio-ph</span>
+                <a href="https://arxiv.org/list/cs.CR/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.CR</a>
+                <a href="https://arxiv.org/list/cs.CV/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.CV</a>
+                <a href="https://arxiv.org/list/physics.bio-ph/recent" class="tag" target="_blank" rel="noopener noreferrer">physics.bio-ph</a>
             </div>
         </article>
 
     </div>
 </main>
 
-<!-- Academic Footer -->
+
 <footer>
     <div class="footer-inner">
         <div class="footer-brand">
@@ -400,7 +399,7 @@
     </div>
 </footer>
 
-<!-- Lightweight Scroll Animation Script -->
+
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const revealElements = document.querySelectorAll(".reveal");
