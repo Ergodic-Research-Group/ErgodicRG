@@ -328,7 +328,7 @@
             </div>
             <div class="side-block">
                 <h3>Status</h3>
-                <p>Independent <br>Est. 2025 &bull; Global Distributed Group</p>
+                <p>Independent laboratory<br>Est. 2025 &bull; Global Distributed Group</p>
             </div>
         </aside>
     </header>
@@ -382,7 +382,6 @@
         let canvasWidth = window.innerWidth;
         const canvasHeight = 240;
         
-        // This array holds the Y positions of our lagging ghost shadow wave
         let ghostWaveY = [];
 
         function initGhostPath() {
@@ -406,22 +405,31 @@
         let isScrollingDown = false;
         
         let stopTime = 0;            
-        const DRY_DURATION = 4000;   
+        const DRY_DURATION = 4000;   // Exactly 4 seconds countdown
         let scrollTimeout;
         
-        // Tracks the intensity of the drag effect based on scroll acceleration
         let visualDragOffset = 0;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
             if (currentScrollY > lastScrollY) {
-                isScrollingDown = true;
-                stopTime = 0; 
-
-                // Inject immediate physical drag offset based directly on how fast they scroll
                 const structuralDelta = currentScrollY - lastScrollY;
-                visualDragOffset = Math.min(visualDragOffset + structuralDelta * 0.4, 45);
+                
+                // If starting a new scroll, sync ghost completely to current wave state
+                if (!isScrollingDown) {
+                    isScrollingDown = true;
+                    stopTime = 0;
+                }
+
+                // Shift the ghost path up directly matching scroll movement
+                // This locks it in place relative to document text frames
+                for (let x = 0; x < canvasWidth; x++) {
+                    ghostWaveY[x] -= structuralDelta;
+                }
+
+                // Track total distance dragged away from baseline
+                visualDragOffset = Math.min(visualDragOffset + structuralDelta, 110);
 
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
@@ -429,7 +437,7 @@
                         isScrollingDown = false;
                         stopTime = performance.now();
                     }
-                }, 80);
+                }, 100);
             }
             lastScrollY = currentScrollY;
         });
@@ -451,22 +459,24 @@
             waveOffsetBack += 0.009;
 
             let currentAlpha = 0;
+            let catchUpSpeed = 0; // Lock structural changes during active scrolling
 
             if (isScrollingDown) {
                 currentAlpha = 0.18;
+                catchUpSpeed = 0; // Zero speed = Perfectly stuck to historical position
             } else if (stopTime > 0) {
                 const elapsed = timestamp - stopTime;
                 if (elapsed < DRY_DURATION) {
                     const progress = elapsed / DRY_DURATION;
                     currentAlpha = 0.18 * (1 - progress);
+                    
+                    // Linear interpolation speed accelerates as drying finishes
+                    catchUpSpeed = 0.03 + (progress * 0.12);
                 } else {
                     currentAlpha = 0;
                     stopTime = 0;
+                    visualDragOffset = 0;
                 }
-                // Decelerate the drag offset smoothly back down to zero when scroll ceases
-                visualDragOffset *= 0.85;
-            } else {
-                visualDragOffset *= 0.85;
             }
 
             // Calculate active frontend wave positions
@@ -476,28 +486,34 @@
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // Update the lagging Ghost Wave using linear interpolation (friction lag)
+            // Update the ghost trail layout positions
             for (let x = 0; x < canvasWidth; x++) {
-                // The ghost target is the active wave shifted upwards by the drag distance
-                let targetGhostY = currentWaveY[x] - visualDragOffset;
-                
-                // 0.12 creates a smooth, heavy tracking lag that never forms blocky edges
-                ghostWaveY[x] += (targetGhostY - ghostWaveY[x]) * 0.12;
+                if (isScrollingDown) {
+                    // While scrolling, make sure ghost wave maintains wave oscillations at its stuck height
+                    const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
+                    const stuckBaseY = currentWaveY[x] - visualDragOffset;
+                    ghostWaveY[x] = stuckBaseY;
+                } else if (catchUpSpeed > 0) {
+                    // Releasing: Smoothly snap ghost wave coordinates down to meet active wave
+                    ghostWaveY[x] += (currentWaveY[x] - ghostWaveY[x]) * catchUpSpeed;
+                } else {
+                    ghostWaveY[x] = currentWaveY[x];
+                }
             }
 
-            // --- LAYER 1: HEAVY GHOST SHADOW TRAIL ---
-            if (currentAlpha > 0.001 && visualDragOffset > 0.5) {
+            // --- LAYER 1: PINNED GHOST SHADOW RUNOFF TRAIL ---
+            if (currentAlpha > 0.001 && visualDragOffset > 1) {
                 ctx.save();
                 ctx.filter = 'blur(5px)'; 
                 ctx.beginPath();
                 
-                // Track forward along the smooth lagging ghost path
+                // Draw path forward across the stuck ghost wave boundary
                 ctx.moveTo(0, ghostWaveY[0]);
                 for (let x = 1; x < canvasWidth; x++) {
                     ctx.lineTo(x, ghostWaveY[x]);
                 }
 
-                // Trace backward directly matching the current interactive wavefront
+                // Trace backward across the current moving runtime wave
                 for (let x = canvasWidth - 1; x >= 0; x--) {
                     ctx.lineTo(x, currentWaveY[x]);
                 }
