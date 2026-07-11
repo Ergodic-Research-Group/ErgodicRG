@@ -42,7 +42,6 @@
             overflow-x: hidden;
         }
 
-        /* Subtle, non-intrusive procedural noise texture simulation */
         body::before {
             content: "";
             position: fixed;
@@ -79,7 +78,6 @@
             align-items: center;
         }
 
-        /* --- INSTITUTIONAL BRAND LOGO ASSEMBLY --- */
         .brand-container {
             display: flex;
             align-items: center;
@@ -128,24 +126,6 @@
         
         nav ul li a.active {
             color: var(--text-main);
-        }
-        
-        nav ul li a::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            transform: scaleX(0);
-            height: 1px;
-            bottom: 0;
-            left: 0;
-            background-color: var(--text-main);
-            transform-origin: bottom right;
-            transition: transform 0.25s ease-out;
-        }
-        
-        nav ul li a:hover::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
         }
 
         /* --- HERO LAYOUT --- */
@@ -220,7 +200,6 @@
             letter-spacing: -0.01em;
         }
 
-        /* --- RESEARCH CARD ARCHITECTURE --- */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -234,29 +213,12 @@
             border-radius: 10px;
             padding: 32px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015);
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                        box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                        border-color 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 30px rgba(27, 25, 22, 0.04);
-            border-color: rgba(0, 0, 0, 0.15);
-        }
-
-        .card h3 {
-            font-family: "Inter", sans-serif;
-            font-weight: 600;
-            margin-bottom: 14px;
-            font-size: 1.1rem;
-            letter-spacing: -0.01em;
-        }
-
-        .card p {
-            color: var(--text-muted);
-            font-size: 0.93rem;
-            line-height: 1.65;
         }
 
         .mission-text {
@@ -280,33 +242,15 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            flex-wrap: wrap;
             gap: 40px;
             color: var(--text-light);
             font-size: 0.9rem;
         }
 
-        .footer-brand strong {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-        
-        .footer-links a {
-            color: var(--text-muted);
-            border-bottom: 1px solid transparent;
-        }
-        
-        .footer-links a:hover {
-            color: var(--text-main);
-            border-bottom: 1px solid var(--text-main);
-        }
-
-        /* --- SCROLL ANIMATION SUBTLETIES --- */
         .reveal {
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
-                        transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .reveal.active {
@@ -320,7 +264,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 110px; 
+            height: 160px; /* Expanded space to accommodate high dynamic wet overlay reach */
             z-index: 10;
             pointer-events: none;
         }
@@ -331,58 +275,9 @@
             display: block;
         }
 
-        /* --- RESPONSIVE ADAPTATIONS --- */
         @media (max-width: 960px) {
-            .hero {
-                grid-template-columns: 1fr;
-                gap: 50px;
-                margin-top: 50px;
-            }
-
-            .side {
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-                padding-left: 0;
-                padding-top: 40px;
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            
-            h1 {
-                font-size: 2.5rem;
-            }
-        }
-
-        @media (max-width: 680px) {
-            nav {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px;
-            }
-            
-            nav ul {
-                gap: 20px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .side {
-                flex-direction: column;
-                gap: 30px;
-            }
-            
-            h1 {
-                font-size: 2.1rem;
-            }
-            
-            section {
-                padding: 50px 20px;
-            }
-            
-            .footer-inner {
-                flex-direction: column;
-                gap: 20px;
-            }
+            .hero { grid-template-columns: 1fr; gap: 50px; }
+            .side { border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 40px; }
         }
     </style>
 </head>
@@ -390,14 +285,12 @@
 
 <header class="site-header">
     <nav aria-label="Main Navigation">
-        <a href="index.html" class="brand-container" aria-label="Ergodic Research Group Home">
+        <a href="index.html" class="brand-container">
             <img src="logo.jpg" alt="Ergodic Research Group Logo" class="brand-logo">
-            <div class="brand">
-                Ergodic Research Group<span class="brand-sub">ERG</span>
-            </div>
+            <div class="brand">Ergodic Research Group<span class="brand-sub">ERG</span></div>
         </a>
         <ul>
-            <li><a href="index.html" class="active" aria-current="page">Home</a></li>
+            <li><a href="index.html" class="active">Home</a></li>
             <li><a href="research.html">Research</a></li>
             <li><a href="software.html">Software</a></li>
             <li><a href="publications.html">Publications</a></li>
@@ -411,26 +304,17 @@
         <div>
             <h1>Independent research in computation, physics, biology, and intelligent systems.</h1>
             <p class="mission-statement">
-                The Ergodic Research Group (ERG) is an independent interdisciplinary research initiative focused on physics, computer science, biology, artificial intelligence, cryptography, and scientific software. We develop original computational technologies, establish foundational open-source platforms, and maintain long-term investigations outside standard corporate frameworks.
+                The Ergodic Research Group (ERG) is an independent interdisciplinary research initiative focused on physics, computer science, biology, artificial intelligence, cryptography, and scientific software.
             </p>
         </div>
-
         <aside class="side">
             <div class="side-block">
                 <h3>Current Focus</h3>
-                <p>
-                    LLM Benchmarking & Evaluation<br>
-                    Optical Entropy Extraction<br>
-                    Biological Computation Frameworks<br>
-                    Scientific Software Architectures
-                </p>
+                <p>LLM Benchmarking & Evaluation<br>Optical Entropy Extraction<br>Biological Computation Frameworks</p>
             </div>
             <div class="side-block">
                 <h3>Status</h3>
-                <p>
-                    Independent<br>
-                    Est. 2025 &bull; Global Distributed Group
-                </p>
+                <p>Independent<br>Est. 2025 &bull; Global Distributed Group</p>
             </div>
         </aside>
     </header>
@@ -442,48 +326,28 @@
         <div class="grid">
             <div class="card" tabindex="0">
                 <h3>Unitary Dynamics &amp; Non-Markovian Systems</h3>
-                <p> We investigate operator growth and quantum scrambling in closed systems by modeling non-Markovian memory loops.</p>
+                <p>We investigate operator growth and quantum scrambling in closed systems by modeling non-Markovian memory loops.</p>
             </div>
-
             <div class="card" tabindex="0">
                 <h3>Deep Space Guidance</h3>
                 <p>Developing novel methods of guiding deep space aircraft while being more energy efficient.</p>
             </div>
-
             <div class="card" tabindex="0">
                 <h3>Artificial Intelligence</h3>
                 <p>Creating new and innovative benchmarks to evaluate LLMs, particularly at long-horizon tasks.</p>
             </div>
-
             <div class="card" tabindex="0">
                 <h3>Biological Physical Cryptography</h3>
-                <p>Exploring physical information systems, developing computational and cryptographic technologies from complex biological and physical phenomena.</p>
+                <p>Exploring physical information systems, developing computational and cryptographic technologies.</p>
             </div>
         </div>
-    </section>
-
-    <hr class="section-divider">
-
-    <section id="mission" class="reveal">
-        <h2>Mission</h2>
-        <p class="mission-text">
-            The fundamental mission of the Ergodic Research Group is to probe both standard and non-standard scientific landscapes through transparent experimentation, structural clarity, and meticulous software engineering. Our initiatives prioritize absolute technical reproducibility, long-horizon exploration, and cross-domain architectures designed to function reliably without traditional institutional dependencies.
-        </p>
     </section>
 </main>
 
 <footer>
     <div class="footer-inner">
-        <div class="footer-brand">
-            <strong>Ergodic Research Group</strong><br>
-            Independent Research Initiative &bull; 2025
-        </div>
-        <div class="footer-links">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
-        </div>
-        <div>
-            &copy; 2026 ERG. All rights reserved. 
-        </div>
+        <div><strong>Ergodic Research Group</strong><br>Independent Research &bull; 2025</div>
+        <div>&copy; 2026 ERG. All rights reserved.</div>
     </div>
 </footer>
 
@@ -493,28 +357,22 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // --- 1. SCROLL REVEAL DRIVER ---
+        // --- 1. SCROLL REVEAL TIMELINE DRIVER ---
         const revealElements = document.querySelectorAll(".reveal");
         const revealOnScroll = () => {
-            const buffer = 40; 
             revealElements.forEach(el => {
-                const elementTop = el.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                if (elementTop < windowHeight - buffer) {
-                    el.classList.add("active");
-                }
+                if (el.getBoundingClientRect().top < window.innerHeight - 40) el.classList.add("active");
             });
         };
         window.addEventListener("scroll", revealOnScroll);
-        window.addEventListener("resize", revealOnScroll);
         revealOnScroll();
 
-        // --- 2. DYNAMIC SHORELINE & EVAPORATING DARK CREAM WET-LOOK MATRIX ---
+        // --- 2. THE STICKY OVERLAY SHORELINE & 4-SECOND BLENDING MATRIX ---
         const canvas = document.getElementById("shorelineCanvas");
         const ctx = canvas.getContext("2d");
 
         let canvasWidth = window.innerWidth;
-        const canvasHeight = 110;
+        const canvasHeight = 160;
         
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
@@ -526,75 +384,76 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const baselineY = 30;       // Point A initial resting line (higher up on canvas = lower coordinate value)
-        const maxRecedeDist = 55;   // Distance wave recedes when scrolled completely down
+        const baselineY = 110;       // Main resting line for water (near bottom of canvas)
+        let targetWetStretch = 0;   // How far up the screen the wet overlay is stretched
+        let currentWetStretch = 0;
+        let wetAlpha = 0;           // Opacity of the damp overlay track
         
-        let scrollPercent = 0;
-        let currentWaterLine = baselineY;
-        let waveOffsetFront = 0;
-        let waveOffsetBack = 0;
-
-        // Tracks Point A's historic tide line per pixel column to generate the exact wave shape overlay
-        let dampProfile = new Array(Math.ceil(window.screen.width)).fill(baselineY);
+        let lastScrollY = window.scrollY;
+        let scrollTimeout = null;
+        let isScrolling = false;
 
         window.addEventListener('scroll', () => {
-            const scrollTop = window.scrollY;
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            scrollPercent = maxScroll > 0 ? scrollTop / maxScroll : 0;
+            isScrolling = true;
+            const currentScrollY = window.scrollY;
+            const delta = Math.abs(currentScrollY - lastScrollY);
+            lastScrollY = currentScrollY;
+
+            // Generate upward drag stretch based directly on scroll momentum
+            targetWetStretch = Math.min(80, targetWetStretch + delta * 0.4);
+            wetAlpha = 0.06; // Instantly set to maximum dark cream depth value while moving
+
+            // Cleanly clear out previous timers to prevent drying mid-scroll
+            clearTimeout(scrollTimeout);
+            
+            // Trigger accurate 4-second evaporation loop (4000ms) once scroll events finish
+            scrollTimeout = setTimeout(() => {
+                isScrolling = false;
+            }, 50);
         });
+
+        let waveOffsetFront = 0;
+        let waveOffsetBack = 0;
 
         function renderShoreline() {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-            // Water pushes out / recedes down screen as user scrolls down
-            const targetWaterLine = baselineY + (scrollPercent * maxRecedeDist);
-            currentWaterLine += (targetWaterLine - currentWaterLine) * 0.08;
-
             waveOffsetFront += 0.025;
             waveOffsetBack += 0.012;
 
-            // Make sure array is wide enough if viewport stretches
-            if (dampProfile.length < canvasWidth) {
-                const oldLength = dampProfile.length;
-                dampProfile.length = Math.ceil(canvasWidth);
-                dampProfile.fill(baselineY, oldLength);
+            // Smooth out dynamic calculations
+            if (!isScrolling) {
+                // Return damp footprint down and dry the alpha transparency smoothly over ~4 seconds
+                targetWetStretch += (0 - targetWetStretch) * 0.02; 
+                wetAlpha += (0 - wetAlpha) * 0.015; 
             }
+            currentWetStretch += (targetWetStretch - currentWetStretch) * 0.1;
 
-            // --- LAYER 1: PERFECT WAVE-SHAPED WET RESIDUE (DARK CREAM SATURATION) ---
-            ctx.save();
-            ctx.filter = 'blur(5px)'; // Blurs cleanly into paper cream background texture
-            ctx.beginPath();
-            ctx.moveTo(0, canvasHeight);
+            // --- LAYER 1: PERFECT STICKY WET OVERLAY (DARKENS UNDERLYING CREAM) ---
+            if (wetAlpha > 0.001) {
+                ctx.save();
+                ctx.filter = 'blur(6px)'; // Soft blend edge architecture
+                ctx.beginPath();
+                ctx.moveTo(0, canvasHeight);
 
-            for (let x = 0; x < canvasWidth; x++) {
-                // Compute exact real-time wave point position
-                const currentWaveShapeY = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
-
-                // If wave is higher than damp line (smaller Y value), update high water mark shape instantly
-                if (currentWaveShapeY < dampProfile[x]) {
-                    dampProfile[x] = currentWaveShapeY;
-                } else {
-                    // SLOW EVAPORATION LOOP: Residue dries down screen toward the receding wave
-                    dampProfile[x] += 0.18; 
-                    if (dampProfile[x] > currentWaveShapeY) {
-                        dampProfile[x] = currentWaveShapeY;
-                    }
+                for (let x = 0; x < canvasWidth; x++) {
+                    // Match the exact wave structure but pulled upward on the page coordinate grid
+                    const waveShape = Math.sin(x * 0.007 + waveOffsetFront) * 4;
+                    const y = baselineY + waveShape - currentWetStretch;
+                    ctx.lineTo(x, y);
                 }
-                ctx.lineTo(x, dampProfile[x]);
+                ctx.lineTo(canvasWidth, canvasHeight);
+                ctx.closePath();
+                ctx.fillStyle = `rgba(0, 0, 0, ${wetAlpha})`; 
+                ctx.fill();
+                ctx.restore();
             }
-            ctx.lineTo(canvasWidth, canvasHeight);
-            ctx.closePath();
-            
-            // Multiply-blend transparency to organically darken underlying `#f6f2e9` cream
-            ctx.fillStyle = "rgba(0, 0, 0, 0.045)"; 
-            ctx.fill();
-            ctx.restore();
 
             // --- LAYER 2: DEEP OCEAN ACCENT LAYER ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
-                const y = currentWaterLine - 3 + Math.sin(x * 0.005 + waveOffsetBack) * 5;
+                const y = baselineY - 4 + Math.sin(x * 0.005 + waveOffsetBack) * 5;
                 ctx.lineTo(x, y);
             }
             ctx.lineTo(canvasWidth, canvasHeight);
@@ -602,11 +461,11 @@
             ctx.fillStyle = "rgba(41, 102, 163, 0.15)"; 
             ctx.fill();
 
-            // --- LAYER 3: INCOMING LIQUID SURF (PRIMARY WAVE FOREGROUND) ---
+            // --- LAYER 3: PRIMARY SURF LAYER (FOREGROUND WAVE) ---
             ctx.beginPath();
             ctx.moveTo(0, canvasHeight);
             for (let x = 0; x < canvasWidth; x++) {
-                const y = currentWaterLine + Math.sin(x * 0.007 + waveOffsetFront) * 4;
+                const y = baselineY + Math.sin(x * 0.007 + waveOffsetFront) * 4;
                 ctx.lineTo(x, y);
             }
             ctx.lineTo(canvasWidth, canvasHeight);
