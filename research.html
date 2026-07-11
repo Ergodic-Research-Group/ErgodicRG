@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/jpeg" href="logo.jpg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research — Ergodic Research Group (ERG)</title>
+    <title>Under Construction — Ergodic Research Group (ERG)</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
     <style>
-
+        /* --- GLOBAL SETUP & TYPOGRAPHY --- */
         :root {
-            --bg-color: #f6f2e9;   
-            --text-main: #1c1c1c;   
-            --text-muted: #555555;    
-            --text-light: #767676;    
-            --border-color: #e5dfd3;  
-            --card-bg: #faf7f2;       
+            --bg-color: #f6f2e9;        /* Warm institutional cream */
+            --text-main: #1c1c1c;       /* Off-black for high readability */
+            --text-muted: #555555;      /* Secondary descriptive text */
+            --text-light: #767676;      /* Meta captions & structure tags */
+            --border-color: #e5dfd3;    /* Soft tone-matched layout lines */
+            --card-bg: #faf7f2;         /* Slightly lifted background for cards */
             --accent-hover: #000000;
-            --tag-bg: #eae3d5;          
+            --construction-amber: #d97706; /* Refined, muted industrial amber */
         }
 
         html {
@@ -41,9 +41,12 @@
             -webkit-font-smoothing: antialiased;
             position: relative;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-
+        /* Subtle procedural noise texture simulation */
         body::before {
             content: "";
             position: fixed;
@@ -60,7 +63,7 @@
             transition: color 0.2s ease;
         }
 
-
+        /* --- NAVIGATION HEADER --- */
         header.site-header {
             position: sticky;
             top: 0;
@@ -78,6 +81,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
+        }
+
+        /* --- BRAND LOGO ASSEMBLY --- */
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            height: 28px;
+            width: auto;
+            display: block;
+            border-radius: 4px;
+            mix-blend-mode: multiply; 
         }
 
         .brand {
@@ -85,6 +104,7 @@
             font-weight: 600;
             letter-spacing: -0.02em;
             font-size: 1.05rem;
+            line-height: 1;
         }
         
         .brand-sub {
@@ -133,115 +153,81 @@
             transform-origin: bottom left;
         }
 
-
-        .page-header {
-            max-width: 1150px;
-            margin: 80px auto 40px auto;
-            padding: 0 30px;
+        /* --- CONSTRUCTION ERROR STATE MAIN BOX --- */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 30px;
         }
 
-        .page-header h1 {
-            font-family: "IBM Plex Serif", Georgia, serif;
-            font-size: 2.8rem;
-            font-weight: 400;
-            letter-spacing: -0.01em;
-            margin-bottom: 10px;
-        }
-
-        .page-subtitle {
-            color: var(--text-light);
-            font-size: 1.1rem;
-            max-width: 700px;
-        }
-
-
-        .projects-container {
-            max-width: 1150px;
-            margin: 0 auto 100px auto;
-            padding: 0 30px;
+        .error-container {
+            max-width: 540px;
+            text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 32px;
+            align-items: center;
         }
 
-        .project-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015);
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                        box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                        border-color 0.3s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 35px rgba(27, 25, 22, 0.04);
-            border-color: rgba(0, 0, 0, 0.15);
-        }
-
-        .project-titles {
-            margin-bottom: 20px;
-        }
-
-        .project-main-title {
-            font-family: "Inter", sans-serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--text-main);
-            letter-spacing: -0.01em;
-            line-height: 1.3;
-        }
-
-        .project-expanded-title {
-            font-family: "Inter", sans-serif;
-            font-size: 0.95rem;
-            font-weight: 400;
-            color: var(--text-light);
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-
-        .project-description {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            line-height: 1.7;
-            margin-bottom: 24px;
-            max-width: 900px;
-        }
-
-
-        .tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .tag {
-            font-family: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            background-color: var(--tag-bg);
-            padding: 6px 16px;
+        /* Rounded, Minimal Vector Graphic Matching the Palette Style */
+        .construction-vector {
+            width: 84px;
+            height: 84px;
+            margin-bottom: 30px;
+            color: var(--construction-amber);
+            background-color: rgba(217, 119, 6, 0.06);
+            padding: 16px;
             border-radius: 20px;
-            border: 1px solid transparent;
-            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-            cursor: default;
+            border: 1px dashed rgba(217, 119, 6, 0.2);
         }
 
+        .error-tag {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--construction-amber);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
 
-        .tag:hover {
-            background-color: #fcfbfa; 
+        h1 {
+            font-family: "IBM Plex Serif", Georgia, serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            margin-bottom: 16px;
             color: var(--text-main);
-            border-color: #dcd4c3;
         }
 
+        .error-description {
+            color: var(--text-muted);
+            font-size: 1.02rem;
+            line-height: 1.7;
+            margin-bottom: 35px;
+        }
 
+        /* Minimal action boundary link */
+        .return-btn {
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--text-main);
+            padding-bottom: 2px;
+            transition: opacity 0.2s ease;
+        }
+
+        .return-btn:hover {
+            opacity: 0.6;
+        }
+
+        /* --- FOOTER --- */
         footer {
             border-top: 1px solid var(--border-color);
             padding: 60px 30px;
             background-color: rgba(0, 0, 0, 0.01);
+            width: 100%;
         }
 
         .footer-inner {
@@ -271,12 +257,12 @@
             border-bottom: 1px solid var(--text-main);
         }
 
-
+        /* --- SCROLL ANIMATION --- */
         .reveal {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
-                        transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translateY(15px);
+            transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), 
+                        transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .reveal.active {
@@ -284,7 +270,7 @@
             transform: translateY(0);
         }
 
-
+        /* --- RESPONSIVE ADAPTATIONS --- */
         @media (max-width: 680px) {
             nav {
                 flex-direction: column;
@@ -298,41 +284,35 @@
                 justify-content: center;
             }
 
-            .page-header {
-                margin-top: 40px;
-                padding: 0 20px;
+            h1 {
+                font-size: 1.8rem;
             }
 
-            .page-header h1 {
-                font-size: 2.2rem;
+            .error-description {
+                font-size: 0.95rem;
             }
-
-            .projects-container {
-                padding: 0 20px;
+            
+            .footer-inner {
+                flex-direction: column;
                 gap: 20px;
-            }
-
-            .project-card {
-                padding: 28px;
-            }
-
-            .project-main-title {
-                font-size: 1.25rem;
             }
         }
     </style>
 </head>
 <body>
 
-
+<!-- Navigation Header -->
 <header class="site-header">
     <nav aria-label="Main Navigation">
-        <div class="brand">
-            Ergodic Research Group<span class="brand-sub">ERG</span>
-        </div>
+        <a href="index.html" class="brand-container" aria-label="Ergodic Research Group Home">
+            <img src="logo.jpg" alt="Ergodic Research Group Logo" class="brand-logo">
+            <div class="brand">
+                Ergodic Research Group<span class="brand-sub">ERG</span>
+            </div>
+        </a>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="research.html" class="active" aria-current="page">Research</a></li>
+            <li><a href="research.html" class="active">Research</a></li>
             <li><a href="software.html">Software</a></li>
             <li><a href="publications.html">Publications</a></li>
             <li><a href="contact.html">Contact</a></li>
@@ -340,51 +320,27 @@
     </nav>
 </header>
 
+<!-- Central Structural Area -->
 <main>
+    <div class="error-container reveal">
+        <!-- Rounded Open-Source Vector Barrier (Industrial / Construction Tone) -->
+        <svg class="construction-vector" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18" />
+            <path d="M10 22v-4a2 2 0 0 1 4 0v4" />
+            <path d="m3 7 18 3" />
+            <path d="m3 12 18 3" />
+        </svg>
 
-    <header class="page-header reveal">
-        <h1>Active Research</h1>
-        <p class="page-subtitle">Long-term core initiatives and interdisciplinary technical tracks underway at the group.</p>
-    </header>
-
-
-    <div class="projects-container">
-
-        <article class="project-card reveal" tabindex="0">
-            <div class="project-titles">
-                <h2 class="project-main-title">ARCUS-X</h2>
-                <div class="project-expanded-title">Adaptive Reasoning Compliance Under Sequential eXecution for Long-Horizon Language Model Evaluation</div>
-            </div>
-            <p class="project-description">
-                ARCUS-X is a novel benchmark that evaluates how reliably large language models maintain state and execute sequential transformations over extended reasoning horizons.
-            </p>
-            <div class="tag-container" aria-label="Project classifications">
-                <a href="https://arxiv.org/list/cs.LG/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.LG</a>
-                <a href="https://arxiv.org/list/cs.AI/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.AI</a>
-                <a href="https://arxiv.org/list/cs.CL/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.CL</a>
-            </div>
-        </article>
-
-    
-        <article class="project-card reveal" tabindex="0">
-            <div class="project-titles">
-                <h2 class="project-main-title">OptiTRNG</h2>
-                <div class="project-expanded-title">A biological true random number generator that derives physical entropy from optical measurements of sea urchin sperm motion</div>
-            </div>
-            <p class="project-description">
-                This project investigates micro-scale biological kinematics to generate cryptographically secure true entropy, processing live-captured optical tracking metrics into robust non-deterministic bitstreams.
-            </p>
-            <div class="tag-container" aria-label="Project classifications">
-                <a href="https://arxiv.org/list/cs.CR/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.CR</a>
-                <a href="https://arxiv.org/list/cs.CV/recent" class="tag" target="_blank" rel="noopener noreferrer">cs.CV</a>
-                <a href="https://arxiv.org/list/physics.bio-ph/recent" class="tag" target="_blank" rel="noopener noreferrer">physics.bio-ph</a>
-            </div>
-        </article>
-
+        <div class="error-tag">Status 403 &bull; Block Active</div>
+        <h1>We are working on this module.</h1>
+        <p class="error-description">
+            This workspace section is currently under structural maintenance. The associated algorithmic datasets, software tools, and documentation are being integrated by the research engineering team.
+        </p>
+        <a href="index.html" class="return-btn">Return to Primary Index</a>
     </div>
 </main>
 
-
+<!-- Footer -->
 <footer>
     <div class="footer-inner">
         <div class="footer-brand">
@@ -400,25 +356,20 @@
     </div>
 </footer>
 
-
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const revealElements = document.querySelectorAll(".reveal");
-
         const revealOnScroll = () => {
-            const buffer = 40;
             revealElements.forEach(el => {
                 const elementTop = el.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (elementTop < windowHeight - buffer) {
+                // Triggers immediately if the element is visible on load
+                if (elementTop < window.innerHeight - 20) {
                     el.classList.add("active");
                 }
             });
         };
-
         window.addEventListener("scroll", revealOnScroll);
-        window.addEventListener("resize", revealOnScroll);
+        // Force evaluation right away on initial load execution
         revealOnScroll();
     });
 </script>
