@@ -27,7 +27,7 @@
             scroll-behavior: smooth;
         }
 
-        * {
+        *{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -160,8 +160,6 @@
             align-items: center;
             justify-content: center;
             padding: 60px 30px;
-            position: relative;
-            z-index: 5;
         }
 
         .error-container {
@@ -228,10 +226,8 @@
         footer {
             border-top: 1px solid var(--border-color);
             padding: 60px 30px;
-            background-color: transparent;
+            background-color: rgba(0, 0, 0, 0.01);
             width: 100%;
-            position: relative;
-            z-index: 5;
         }
 
         .footer-inner {
@@ -272,37 +268,6 @@
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
-        }
-
-        /* --- STABLE CANVAS LAYERS --- */
-        .ghost-canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-        #ghostCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .shoreline-canvas-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 240px; 
-            z-index: 10;
-            pointer-events: none;
-        }
-        #shorelineCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
         }
 
         /* --- RESPONSIVE ADAPTATIONS --- */
@@ -391,18 +356,9 @@
     </div>
 </footer>
 
-<!-- Background Structural Canvases -->
-<div class="ghost-canvas-container">
-    <canvas id="ghostCanvas"></canvas>
-</div>
-
-<div class="shoreline-canvas-container">
-    <canvas id="shorelineCanvas"></canvas>
-</div>
-<script>
+<!-- Reveal Animation Handling -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // --- SCROLL REVEAL MANAGEMENT ---
         const revealElements = document.querySelectorAll(".reveal");
         const revealOnScroll = () => {
             revealElements.forEach(el => {
@@ -414,13 +370,20 @@
         };
         window.addEventListener("scroll", revealOnScroll);
         revealOnScroll();
+    });
+</script>
 
-        // --- FLUID WAVE ENGINE CORE ---
+<!-- Shoreline & Ghost Wave Animation Logic -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
         const sCanvas = document.getElementById("shorelineCanvas");
-        const sCtx = sCanvas.getContext("2d");
+        const sCtx = sCanvas ? sCanvas.getContext("2d") : null;
 
         const gCanvas = document.getElementById("ghostCanvas");
-        const gCtx = gCanvas.getContext("2d");
+        const gCtx = gCanvas ? gCanvas.getContext("2d") : null;
+
+        // Prevent script errors if canvas elements aren't present in DOM
+        if (!sCanvas || !gCanvas) return;
 
         let viewWidth = window.innerWidth;
         const viewHeight = 240;
@@ -452,6 +415,7 @@
 
         let ghostAlpha = 0;
 
+        // Tracks positions using the highly accurate Top boundary system
         let scrollStartTopY = 0;
         let scrollStartWaveOffset = 0;
         let hasAnchor = false;
@@ -465,6 +429,7 @@
                     stopTime = 0;
                     ghostAlpha = 0.18;
                     
+                    // Correctly anchor the top of the viewport when scroll starts
                     if (!hasAnchor) {
                         scrollStartTopY = lastScrollY;
                         scrollStartWaveOffset = waveOffsetFront;
@@ -478,7 +443,7 @@
                         isScrollingDown = false;
                         stopTime = performance.now(); 
                     }
-                }, 120); 
+                }, 120); // Marginally higher window to ensure touchpads process completely
             }
             lastScrollY = currentScrollY;
         });
@@ -504,13 +469,14 @@
                 }
             }
 
+            // Foreground runtime wave coordinates
             let currentWaveY = [];
             for (let x = 0; x < viewWidth; x++) {
                 const waveShape = Math.sin(x * 0.006 + waveOffsetFront) * 12;
                 currentWaveY[x] = baselineY + waveShape;
             }
 
-            // Top-Anchored Unified Geometry Processing
+            // --- RECTIFIED TOP-ANCHORED UNIFIED GEOMETRY (NO BANDING) ---
             if (hasAnchor && ghostAlpha > 0) {
                 gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
 
@@ -519,6 +485,8 @@
                 gCtx.fillStyle = `rgba(0, 0, 0, ${ghostAlpha})`;
                 gCtx.beginPath();
                 
+                // 1. Plot the initial wave shape where the interaction started
+                // Offset calculation is based purely on the document scroll start position
                 const startPlacementY = scrollStartTopY + window.innerHeight - viewHeight;
                 const initialY0 = startPlacementY + baselineY + Math.sin(0 * 0.006 + scrollStartWaveOffset) * 12;
                 gCtx.moveTo(0, initialY0);
@@ -528,6 +496,7 @@
                     gCtx.lineTo(x, initialY);
                 }
 
+                // 2. Seamlessly close the dynamic polygon using the live front wave coordinates
                 const livePlacementY = window.scrollY + window.innerHeight - viewHeight;
                 for (let x = viewWidth - 1; x >= 0; x--) {
                     const liveY = livePlacementY + currentWaveY[x];
@@ -541,7 +510,7 @@
                 gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
             }
 
-            // Background accent wave layer
+            // --- BASEWATER BACKGROUND ACCENT ---
             sCtx.beginPath();
             sCtx.moveTo(0, viewHeight);
             for (let x = 0; x < viewWidth; x++) {
@@ -553,7 +522,7 @@
             sCtx.fillStyle = "rgba(41, 102, 163, 0.14)"; 
             sCtx.fill();
 
-            // Foreground fluid surface layer
+            // --- FOREGROUND SURFACE WATER ---
             sCtx.beginPath();
             sCtx.moveTo(0, viewHeight);
             for (let x = 0; x < viewWidth; x++) {
