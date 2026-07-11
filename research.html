@@ -12,55 +12,57 @@
 
     <style>
         :root {
-            --bg-color: #f6f2e9;   
-            --text-main: #1c1c1c;   
-            --text-muted: #555555;    
-            --text-light: #767676;    
-            --border-color: #e5dfd3;  
-            --card-bg: #faf7f2;        
+            --bg-color: #f6f2e9;
+            --text-main: #1c1c1c;
+            --text-muted: #555555;
+            --text-light: #767676;
+            --border-color: #e5dfd3;
+            --card-bg: #faf7f2;
             --accent-hover: #000000;
-            --tag-bg: #eae3d5;          
+            --tag-bg: #eae3d5;
         }
 
         html { scroll-behavior: smooth; }
-        *{ margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: "Inter", sans-serif;
             color: var(--text-main);
             background-color: var(--bg-color);
             line-height: 1.7;
             position: relative;
-            overflow-x: hidden;
             min-height: 100vh;
         }
 
-        /* Noise Filter */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            opacity: 0.02;
-            pointer-events: none;
-            z-index: 9999;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-
-        /* --- STABLE CANVAS LAYERS --- */
+        /* --- CANVAS LAYERS --- */
         .ghost-canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #ghostCanvas { width: 100%; height: 100%; display: block; }
         .shoreline-canvas-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 240px; z-index: 10; pointer-events: none; }
         #shorelineCanvas { width: 100%; height: 100%; display: block; }
 
-        /* ... Existing Styles (Keep your header, nav, projects, etc. here) ... */
+        /* Noise Texture */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0.02; pointer-events: none; z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
         header.site-header { position: sticky; top: 0; z-index: 100; background-color: rgba(246, 242, 233, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
-        nav { max-width: 1150px; margin: auto; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .brand { font-weight: 600; font-size: 1.05rem; }
+        nav { max-width: 1150px; margin: auto; padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 11; }
+        .brand { font-weight: 600; letter-spacing: -0.02em; font-size: 1.05rem; }
         .brand-sub { font-weight: 400; color: var(--text-light); margin-left: 6px; }
-        nav ul { display: flex; list-style: none; gap: 32px; font-size: 0.92rem; }
+        nav ul { display: flex; list-style: none; gap: 32px; font-size: 0.92rem; font-weight: 500; }
+        nav ul li a { color: var(--text-muted); padding: 4px 0; text-decoration: none; }
+        nav ul li a.active { color: var(--text-main); }
+        
+        main { position: relative; z-index: 5; padding-bottom: 200px; }
         .page-header { max-width: 1150px; margin: 80px auto 40px auto; padding: 0 30px; }
+        .page-header h1 { font-family: "IBM Plex Serif", serif; font-size: 2.8rem; font-weight: 400; margin-bottom: 10px; }
         .projects-container { max-width: 1150px; margin: 0 auto 100px auto; padding: 0 30px; display: flex; flex-direction: column; gap: 32px; }
-        .project-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px; transition: transform 0.3s ease; }
+        .project-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px; }
+        .tag { font-family: monospace; font-size: 0.78rem; background-color: var(--tag-bg); padding: 6px 16px; border-radius: 20px; }
+        
+        footer { border-top: 1px solid var(--border-color); padding: 60px 30px; background-color: rgba(0, 0, 0, 0.01); position: relative; z-index: 11; }
         .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
         .reveal.active { opacity: 1; transform: translateY(0); }
     </style>
@@ -74,11 +76,13 @@
             <li><a href="index.html">Home</a></li>
             <li><a href="research.html" class="active">Research</a></li>
             <li><a href="software.html">Software</a></li>
+            <li><a href="publications.html">Publications</a></li>
+            <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
 </header>
 
-<main style="position: relative; z-index: 5;">
+<main>
     <header class="page-header reveal">
         <h1>Active Research</h1>
         <p>Long-term core initiatives and interdisciplinary technical tracks.</p>
@@ -86,18 +90,24 @@
 
     <div class="projects-container">
         <article class="project-card reveal">
-            <h2>ARCUS-X</h2>
-            <p>Evaluating sequential transformation in LLMs.</p>
+            <h2 class="project-main-title">ARCUS-X</h2>
+            <p>Adaptive Reasoning Compliance Under Sequential eXecution for Long-Horizon Language Model Evaluation.</p>
+        </article>
+        <article class="project-card reveal">
+            <h2 class="project-main-title">OptiTRNG</h2>
+            <p>Biological true random number generator using optical tracking of sea urchin sperm motion.</p>
         </article>
     </div>
 </main>
 
-<!-- Wave Canvas Containers -->
+<footer>
+    <div style="max-width: 1090px; margin: auto;">&copy; 2026 ERG. All rights reserved.</div>
+</footer>
+
 <div class="ghost-canvas-container"><canvas id="ghostCanvas"></canvas></div>
 <div class="shoreline-canvas-container"><canvas id="shorelineCanvas"></canvas></div>
 
 <script>
-    // Integration of your scroll/animation logic
     document.addEventListener("DOMContentLoaded", () => {
         // Reveal Logic
         const revealElements = document.querySelectorAll(".reveal");
@@ -110,73 +120,48 @@
         revealOnScroll();
 
         // Wave Logic
-        const sCanvas = document.getElementById("shorelineCanvas");
-        const sCtx = sCanvas.getContext("2d");
-        const gCanvas = document.getElementById("ghostCanvas");
-        const gCtx = gCanvas.getContext("2d");
+        const sCanvas = document.getElementById("shorelineCanvas"), gCanvas = document.getElementById("ghostCanvas");
+        const sCtx = sCanvas.getContext("2d"), gCtx = gCanvas.getContext("2d");
+        let viewWidth = window.innerWidth, waveOffsetFront = 0, waveOffsetBack = 0, lastScrollY = window.scrollY, isScrollingDown = false, stopTime = 0, scrollTimeout, hasAnchor = false, scrollStartTopY = 0, scrollStartWaveOffset = 0, ghostAlpha = 0;
 
-        let viewWidth = window.innerWidth;
-        const viewHeight = 240;
-        
-        function resizeCanvases() {
+        function resize() {
             const dpr = window.devicePixelRatio || 1;
             viewWidth = window.innerWidth;
-            sCanvas.width = viewWidth * dpr;
-            sCanvas.height = viewHeight * dpr;
-            sCtx.scale(dpr, dpr);
-            gCanvas.width = viewWidth * dpr;
-            gCanvas.height = document.documentElement.scrollHeight * dpr;
-            gCtx.scale(dpr, dpr);
+            sCanvas.width = viewWidth * dpr; sCanvas.height = 240 * dpr; sCtx.scale(dpr, dpr);
+            gCanvas.width = viewWidth * dpr; gCanvas.height = document.documentElement.scrollHeight * dpr; gCtx.scale(dpr, dpr);
         }
-        
-        window.addEventListener('resize', resizeCanvases);
-        resizeCanvases();
-
-        let waveOffsetFront = 0, waveOffsetBack = 0;
-        let lastScrollY = window.scrollY, isScrollingDown = false, ghostAlpha = 0;
-        let stopTime = 0, scrollTimeout, hasAnchor = false, scrollStartTopY = 0, scrollStartWaveOffset = 0;
+        window.addEventListener('resize', resize); resize();
 
         window.addEventListener('scroll', () => {
             if (window.scrollY > lastScrollY) {
-                if (!isScrollingDown) {
-                    isScrollingDown = true; stopTime = 0; ghostAlpha = 0.18;
-                    if (!hasAnchor) { scrollStartTopY = lastScrollY; scrollStartWaveOffset = waveOffsetFront; hasAnchor = true; }
-                }
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => { isScrollingDown = false; stopTime = performance.now(); }, 120);
+                if (!isScrollingDown) { isScrollingDown = true; stopTime = 0; ghostAlpha = 0.18; if (!hasAnchor) { scrollStartTopY = lastScrollY; scrollStartWaveOffset = waveOffsetFront; hasAnchor = true; } }
+                clearTimeout(scrollTimeout); scrollTimeout = setTimeout(() => { isScrollingDown = false; stopTime = performance.now(); }, 120);
             }
             lastScrollY = window.scrollY;
         });
 
-        function renderLoop(timestamp) {
-            sCtx.clearRect(0, 0, viewWidth, viewHeight);
-            waveOffsetFront += 0.018; waveOffsetBack += 0.009;
-
+        function render(t) {
+            sCtx.clearRect(0, 0, viewWidth, 240); waveOffsetFront += 0.018; waveOffsetBack += 0.009;
             if (!isScrollingDown && stopTime > 0) {
-                const elapsed = timestamp - stopTime;
-                if (elapsed < 3000) ghostAlpha = 0.18 * (1 - (elapsed / 3000));
-                else { ghostAlpha = 0; stopTime = 0; hasAnchor = false; }
+                const e = t - stopTime;
+                ghostAlpha = e < 3000 ? 0.18 * (1 - e / 3000) : 0;
             }
-
-            let currentWaveY = [];
-            for (let x = 0; x < viewWidth; x++) currentWaveY[x] = 185 + Math.sin(x * 0.006 + waveOffsetFront) * 12;
+            let curY = [];
+            for (let x = 0; x < viewWidth; x++) curY[x] = 185 + Math.sin(x * 0.006 + waveOffsetFront) * 12;
 
             if (hasAnchor && ghostAlpha > 0) {
-                gCtx.clearRect(0, 0, viewWidth, gCanvas.height);
-                gCtx.save(); gCtx.filter = 'blur(6px)'; gCtx.fillStyle = `rgba(0,0,0,${ghostAlpha})`; gCtx.beginPath();
-                const startY = scrollStartTopY + window.innerHeight - viewHeight;
-                for (let x = 0; x < viewWidth; x++) gCtx.lineTo(x, startY + 185 + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12);
-                for (let x = viewWidth - 1; x >= 0; x--) gCtx.lineTo(x, (window.scrollY + window.innerHeight - viewHeight) + currentWaveY[x]);
+                gCtx.clearRect(0, 0, viewWidth, gCanvas.height); gCtx.save(); gCtx.filter = 'blur(6px)'; gCtx.fillStyle = `rgba(0,0,0,${ghostAlpha})`; gCtx.beginPath();
+                const sY = scrollStartTopY + window.innerHeight - 240;
+                for (let x = 0; x < viewWidth; x++) gCtx.lineTo(x, sY + 185 + Math.sin(x * 0.006 + scrollStartWaveOffset) * 12);
+                for (let x = viewWidth - 1; x >= 0; x--) gCtx.lineTo(x, (window.scrollY + window.innerHeight - 240) + curY[x]);
                 gCtx.fill(); gCtx.restore();
             }
-
-            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)";
-            sCtx.beginPath(); sCtx.moveTo(0, viewHeight);
-            for (let x = 0; x < viewWidth; x++) sCtx.lineTo(x, currentWaveY[x]);
-            sCtx.lineTo(viewWidth, viewHeight); sCtx.fill();
-            requestAnimationFrame(renderLoop);
+            sCtx.fillStyle = "rgba(58, 131, 204, 0.30)"; sCtx.beginPath(); sCtx.moveTo(0, 240);
+            for (let x = 0; x < viewWidth; x++) sCtx.lineTo(x, curY[x]);
+            sCtx.lineTo(viewWidth, 240); sCtx.fill();
+            requestAnimationFrame(render);
         }
-        requestAnimationFrame(renderLoop);
+        requestAnimationFrame(render);
     });
 </script>
 </body>
