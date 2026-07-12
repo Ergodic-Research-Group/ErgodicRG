@@ -60,8 +60,10 @@
         .page-header h1 { font-family: "IBM Plex Serif", serif; font-size: 2.8rem; font-weight: 400; margin-bottom: 10px; }
         .projects-container { max-width: 1150px; margin: 0 auto 100px auto; padding: 0 30px; display: flex; flex-direction: column; gap: 32px; }
         .project-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px; }
-        .tag { font-family: monospace; font-size: 0.78rem; background-color: var(--tag-bg); padding: 6px 16px; border-radius: 20px; }
-        
+        .tag{display:inline-block;font-family:monospace;font-size:.78rem;background-color:var(--tag-bg);padding:6px 16px;border-radius:20px;cursor:pointer;color:var(--text-main);text-decoration:none;transition:.25s ease}
+        .tag:hover{background-color:#dcd3c2;transform:translateY(-2px)}
+        .tag:active{transform:translateY(0)}
+        .tag:focus-visible{outline:2px solid var(--text-main);outline-offset:3px}
         footer { border-top: 1px solid var(--border-color); padding: 60px 30px; background-color: rgba(0, 0, 0, 0.01); position: relative; z-index: 11; }
         .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
         .reveal.active { opacity: 1; transform: translateY(0); }
@@ -102,25 +104,25 @@
                 ARCUS-X is a novel benchmark that evaluates how reliably large language models maintain state and execute sequential transformations over extended reasoning horizons.
             </p>
             <div class="tag-container" aria-label="Project classifications">
-                <span class="tag">cs.LG</span>
-                <span class="tag">cs.AI</span>
-                <span class="tag">cs.CL</span>
+                <a class="tag" href="https://arxiv.org/list/cs.LG/recent" target="_blank">cs.LG</a>
+                <a class="tag" href="https://arxiv.org/list/cs.AI/recent" target="_blank">cs.AI</a>
+                <a class="tag" href="https://arxiv.org/list/cs.CL/recent" target="_blank">cs.CL</a>
             </div>
         </article>
 
         <!-- Project 2: OptiTRNG -->
         <article class="project-card reveal" tabindex="0">
             <div class="project-titles">
-                <h2 class="project-main-title">OptiTRNG</h2>
-                <div class="project-expanded-title">A biological true random number generator that derives physical entropy from optical measurements of sea urchin sperm motion</div>
+                <h2 class="project-main-title">BOTRNG</h2>
+                <div class="project-expanded-title">A bio-optical true random number generator that derives physical entropy from optical measurements of sea urchin sperm motion</div>
             </div>
             <p class="project-description">
                 This project investigates micro-scale biological kinematics to generate cryptographically secure true entropy, processing live-captured optical tracking metrics into robust non-deterministic bitstreams.
             </p>
             <div class="tag-container" aria-label="Project classifications">
-                <span class="tag">cs.CR</span>
-                <span class="tag">cs.CV</span>
-                <span class="tag">physics.bio-ph</span>
+                <a class="tag" href="https://arxiv.org/list/cs.CR/recent" target="_blank">cs.CR</a>
+                <a class="tag" href="https://arxiv.org/list/cs.CV/recent" target="_blank">cs.CV</a>
+                <a class="tag" href="https://arxiv.org/list/physics.bio-ph/recent" target="_blank">physics.bio-ph</a>
             </div>
         </article>
 
